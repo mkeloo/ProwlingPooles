@@ -39,22 +39,34 @@ const Navbar = () => {
                 Home
               </Link>
               <Link
-                to="/"
+                to="/feature1"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Home
+                Feature 1
               </Link>
               <Link
-                to="/"
+                to="/feature2"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Home
+                Feature 2
               </Link>
               <Link
-                to="/"
+                to="/feature3"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Home
+                Feature 3
+              </Link>
+              <Link
+                to="/feature4"
+                className="text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Feature 4
+              </Link>
+              <Link
+                to="/feature5"
+                className="text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Feature 5
               </Link>
               <div>
                 <Link to="/about">
