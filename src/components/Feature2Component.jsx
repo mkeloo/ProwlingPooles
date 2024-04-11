@@ -20,6 +20,14 @@ const Feature2Component = () => {
         console.log('With id:', player.id);
         setShowSeason(true);
       };
+      const handleSeasonChange = (event) => {
+        // Handle click on player row (e.g., show more details)
+        // console.log('Clicked on player:', player.name);
+        // console.log('With id:', player.id);
+        setShowSeason(true);
+        setSeason(event.target.value);
+
+      };
     const getDataForPlayerAndSeason = async (player, season) => {
         const axios = require('axios');
         const options = {
@@ -51,7 +59,7 @@ const Feature2Component = () => {
           url: 'https://api-nba-v1.p.rapidapi.com/players',
           params: {search: name},
           headers: {
-            'X-RapidAPI-Key': 'c5c78716e3mshcc7471627a16d02p1f89c8jsn20ffa1d2091c',
+            'X-RapidAPI-Key': process.env.API_KEY,
             'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
           }
         };
@@ -83,7 +91,7 @@ const Feature2Component = () => {
             {showModal && (
                 <div className="modal">
                 <div className="modal-content">
-                    <span className="close" onClick={() => setShowModal(false)}>&times;</span>
+                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false);}}>&times;</span>
                     <h2>Player List</h2>
                     <table>
                     <thead>
@@ -102,7 +110,25 @@ const Feature2Component = () => {
                 </div>
                 </div>
             )}
-            
+            {showSeason && (
+                <div className="modal">
+                <div className="modal-content">
+                    <span className="close" onClick={() => setShowSeason(false)}>&times;</span>
+                    <h2>Seasons</h2>
+                    <select value={season} onChange={handleSeasonChange}>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+                </div>
+            )}
         </div>
     );
 };
