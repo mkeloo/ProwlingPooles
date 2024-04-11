@@ -1,23 +1,37 @@
 import React, {useState, useEffect} from 'react';
+import { config } from 'dotenv';
 import axios from 'axios';
 
 
 const Feature2Component = () => {
+    
+    const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
     const [searchTerm, setSearchTerm] = useState('');
     const [players, setPlayers] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [playersInfo, setPlayersInfo] = useState([]);
     const [season, setSeason] = useState('2023');
     const [showSeason, setShowSeason] = useState(false);
+    const [currPlayer, setCurrPlayer] = useState("");
+    const [stats, setStats] = useState([]);
+    const [showStats, setShowStats] = useState(false);
     const handleSearch = async () => {
         if(!searchTerm) return;
         const data = searchNames(searchTerm);
+        setShowModal(false);
+        setShowStats(false);
+        setShowSeason(false);
         console.log(data);
     };
+    const handleStats = async () => {
+        const response = getDataForPlayerAndSeason(currPlayer, season);
+        console.log(response.data)
+    }
     const handlePlayerClick = (player) => {
         // Handle click on player row (e.g., show more details)
         console.log('Clicked on player:', player.name);
         console.log('With id:', player.id);
+        setCurrPlayer(player.id);
         setShowSeason(true);
       };
       const handleSeasonChange = (event) => {
@@ -28,28 +42,60 @@ const Feature2Component = () => {
         setSeason(event.target.value);
 
       };
-    const getDataForPlayerAndSeason = async (player, season) => {
-        const axios = require('axios');
+    const getDataForPlayerAndSeason = async (_id, _season) => {
         const options = {
         method: 'GET',
-        url: 'https://api-nba-v1.p.rapidapi.com/players',
+        url: 'https://api-nba-v1.p.rapidapi.com/players/statistics',
         params: {
-            team: '1',
-            season: '2021'
+          id: _id,
+          season: _season
         },
         headers: {
-            'X-RapidAPI-Key': process.env.API_KEY,
-            'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
+             'X-RapidAPI-Key': nbaApiKey,
+             'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
         }
-        };
-    
-        try {
-            const response = await axios.request(options);
-            console.log(response.data);
-            
-        } catch (error) {
-            console.error(error);
+      };
+      
+      try {
+          const response = await axios.request(options);
+          console.log(response.data);
+          const arr = response.data.response;
+          console.log(arr);
+          var points = 0;
+          var rebounds = 0;
+          var assists = 0;
+          var blocks = 0;
+          var steals = 0;
+          var total = 0;
+        for(let i = 0; i < arr.length; i++) {
+            points += arr[i].points;
+            rebounds += arr[i].totReb;
+            assists += arr[i].assists;
+            blocks += arr[i].blocks;
+            steals += arr[i].steals;
+            total += 1; 
         }
+        points /= total;
+        rebounds /= total;
+        assists /= total;
+        blocks /= total;
+        steals /= total;
+        const currStats = {
+            Points: points.toFixed(1),
+            Rebounds: rebounds.toFixed(1),
+            Assists: assists.toFixed(1),
+            Blocks: blocks.toFixed(1),
+            Steals: steals.toFixed(1)
+        }
+        const statsArr = Object.entries(currStats);
+        console.log(statsArr);
+
+        setStats(statsArr);
+
+      } catch (error) {
+          console.error(error);
+      }
+
     };
     const searchNames = async (name) => {
         //const axios = require('axios');
@@ -59,7 +105,7 @@ const Feature2Component = () => {
           url: 'https://api-nba-v1.p.rapidapi.com/players',
           params: {search: name},
           headers: {
-            'X-RapidAPI-Key': process.env.API_KEY,
+            'X-RapidAPI-Key': nbaApiKey,
             'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
           }
         };
@@ -71,7 +117,7 @@ const Feature2Component = () => {
                 name: `${player.firstname} ${player.lastname}`
             }));
             setPlayersInfo(playersInfoNew);
-            console.log(playersInfo);
+            console.log(playersInfoNew);
             setShowModal(true);
             //console.log(response.data.response);
         } catch (error) {
@@ -91,7 +137,7 @@ const Feature2Component = () => {
             {showModal && (
                 <div className="modal">
                 <div className="modal-content">
-                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false);}}>&times;</span>
+                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false); setShowStats(false)}}>&times;</span>
                     <h2>Player List</h2>
                     <table>
                     <thead>
@@ -113,7 +159,7 @@ const Feature2Component = () => {
             {showSeason && (
                 <div className="modal">
                 <div className="modal-content">
-                    <span className="close" onClick={() => setShowSeason(false)}>&times;</span>
+                    <span className="close" onClick={() => {setShowSeason(false); setShowSeason(false);}}>&times;</span>
                     <h2>Seasons</h2>
                     <select value={season} onChange={handleSeasonChange}>
                         <option value="2015">2015</option>
@@ -126,6 +172,29 @@ const Feature2Component = () => {
                         <option value="2022">2022</option>
                         <option value="2023">2023</option>
                     </select>
+                    <button onClick={() => {handleStats(); setShowStats(true);}} type="submit">Get stats</button>
+                </div>
+                </div>
+            )}
+            {showStats && (
+                <div className="modal">
+                <div className="modal-content">
+                    <span className="close" onClick={() => {setShowStats(false);}}>&times;</span>
+                    <h2>Average Stats</h2>
+                    <table>
+                    <thead>
+                        <tr>
+                        <th>Stats</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {stats.map(([key, value]) => (
+                        <tr>
+                            <td>{key}: {value}</td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
                 </div>
                 </div>
             )}
