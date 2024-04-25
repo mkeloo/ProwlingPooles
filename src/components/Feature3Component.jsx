@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import axios from 'axios';
 
 
-const Feature2Component = () => {
+const Feature3Component = () => {
 
     const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
     const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +42,7 @@ const Feature2Component = () => {
         setSeason(event.target.value);
 
       };
+
       function convertToNumber(str) {
         // Remove leading "+" or "-"
         const sign = str.startsWith("-") ? "-" : "";
@@ -215,4 +216,4 @@ const Feature2Component = () => {
     );
 };
 
-export default Feature2Component;
+export default Feature3Component;
