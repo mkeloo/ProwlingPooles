@@ -79,6 +79,13 @@ const Feature3Component = () => {
           var steals = 0;
           var total = 0;
           var plusMinus = 0;
+          var fieldGoalPercentage = 0;
+          var fieldGoalMakes = 0;
+          var fieldGoalAttempts = 0;
+          var freeThrowPercentage = 0;
+          var freeThrowMakes = 0;
+          var freeThrowAttempts = 0;
+          var totalTurnovers = 0;
         for(let i = 0; i < arr.length; i++) {
             points += arr[i].points;
             rebounds += arr[i].totReb;
@@ -86,6 +93,11 @@ const Feature3Component = () => {
             blocks += arr[i].blocks;
             steals += arr[i].steals;
             plusMinus += convertToNumber(arr[i].plusMinus);
+            fieldGoalMakes += arr[i].fgm;
+            fieldGoalAttempts += arr[i].fga;
+            freeThrowMakes += arr[i].ftm;
+            freeThrowAttempts += arr[i].fta;
+            totalTurnovers += arr[i].turnovers;
             total += 1;
         }
         points /= total;
@@ -93,13 +105,19 @@ const Feature3Component = () => {
         assists /= total;
         blocks /= total;
         steals /= total;
+        fieldGoalPercentage = fieldGoalMakes/fieldGoalAttempts;
+        freeThrowPercentage = freeThrowMakes/freeThrowAttempts;
+        totalTurnovers /= total;
         const currStats = {
             Points: points.toFixed(1),
             Rebounds: rebounds.toFixed(1),
             Assists: assists.toFixed(1),
             Blocks: blocks.toFixed(1),
             Steals: steals.toFixed(1),
-            PlusMinus: plusMinus.toFixed(1)
+            PlusMinus: plusMinus.toFixed(1),
+            FieldGoalPercentage: fieldGoalPercentage.toFixed(2),
+            FreeThrowPercentage: freeThrowPercentage.toFixed(2),
+            Turnovers: totalTurnovers.toFixed(1)
         }
         const statsArr = Object.entries(currStats);
         console.log(statsArr);
@@ -212,6 +230,34 @@ const Feature3Component = () => {
                 </div>
                 </div>
             )}
+            <h2>Average Player Stats:
+            var fg_percent_mean = 0.468;
+var fg_percent_std = 0.044;
+
+var ft_percent_mean = 0.791;
+var ft_percent_std = 0.072;
+
+var threes_made_mean = 1.9;
+var threes_made_std = 1.3;
+
+var rebounds_mean = 5.7;
+var rebounds_std = 2.8;
+
+var assists_mean = 3.3;
+var assists_std = 2.5;
+
+var steals_mean = 0.9;
+var steals_std = 0.6;
+
+var blocks_mean = 0.6;
+var blocks_std = 0.6;
+
+var turnovers_mean = 1.8;
+var turnovers_std = 1.1;
+
+var points_mean = 15.6;
+var points_std = 6.9;
+            </h2>
         </div>
     );
 };

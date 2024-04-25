@@ -78,6 +78,13 @@ const Feature2Component = () => {
           var steals = 0;
           var total = 0;
           var plusMinus = 0;
+          var fieldGoalPercentage = 0;
+          var fieldGoalMakes = 0;
+          var fieldGoalAttempts = 0;
+          var freeThrowPercentage = 0;
+          var freeThrowMakes = 0;
+          var freeThrowAttempts = 0;
+          var totalTurnovers = 0;
         for(let i = 0; i < arr.length; i++) {
             points += arr[i].points;
             rebounds += arr[i].totReb;
@@ -85,6 +92,11 @@ const Feature2Component = () => {
             blocks += arr[i].blocks;
             steals += arr[i].steals;
             plusMinus += convertToNumber(arr[i].plusMinus);
+            fieldGoalMakes += arr[i].fgm;
+            fieldGoalAttempts += arr[i].fga;
+            freeThrowMakes += arr[i].ftm;
+            freeThrowAttempts += arr[i].fta;
+            totalTurnovers += arr[i].turnovers;
             total += 1;
         }
         points /= total;
@@ -92,13 +104,19 @@ const Feature2Component = () => {
         assists /= total;
         blocks /= total;
         steals /= total;
+        fieldGoalPercentage = fieldGoalMakes/fieldGoalAttempts;
+        freeThrowPercentage = freeThrowMakes/freeThrowAttempts;
+        totalTurnovers /= total;
         const currStats = {
             Points: points.toFixed(1),
             Rebounds: rebounds.toFixed(1),
             Assists: assists.toFixed(1),
             Blocks: blocks.toFixed(1),
             Steals: steals.toFixed(1),
-            PlusMinus: plusMinus.toFixed(1)
+            PlusMinus: plusMinus.toFixed(1),
+            FieldGoalPercentage: fieldGoalPercentage.toFixed(2),
+            FreeThrowPercentage: freeThrowPercentage.toFixed(2),
+            Turnovers: totalTurnovers.toFixed(1)
         }
         const statsArr = Object.entries(currStats);
         console.log(statsArr);
