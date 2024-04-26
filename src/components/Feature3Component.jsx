@@ -14,6 +14,8 @@ const Feature3Component = () => {
     const [showSeason, setShowSeason] = useState(false);
     const [currPlayer, setCurrPlayer] = useState("");
     const [stats, setStats] = useState([]);
+    const [Zstats, setZStats] = useState([]);
+    const [showZStats, setShowZStats] = useState(false);
     const [showStats, setShowStats] = useState(false);
     const handleSearch = async () => {
         if(!searchTerm) return;
@@ -21,16 +23,17 @@ const Feature3Component = () => {
         setShowModal(false);
         setShowStats(false);
         setShowSeason(false);
-        console.log(data);
+        setShowZStats(false);
+        //console.log(data);
     };
     const handleStats = async () => {
         const response = getDataForPlayerAndSeason(currPlayer, season);
-        console.log(response.data)
+        //console.log(response.data)
     }
     const handlePlayerClick = (player) => {
         // Handle click on player row (e.g., show more details)
-        console.log('Clicked on player:', player.name);
-        console.log('With id:', player.id);
+        //console.log('Clicked on player:', player.name);
+        //console.log('With id:', player.id);
         setCurrPlayer(player.id);
         setShowSeason(true);
       };
@@ -52,6 +55,55 @@ const Feature3Component = () => {
         return isNaN(number) ? null : parseInt(sign + numberStr);
       }
 
+      const fg_percent_mean = 0.468;
+      const fg_percent_std = 0.044;
+      const ft_percent_mean = 0.791;
+      const ft_percent_std = 0.072;
+      const rebounds_mean = 5.7;
+      const rebounds_std = 2.8;
+      const assists_mean = 3.3;
+      const assists_std = 2.5;
+      const steals_mean = 0.9;
+      const steals_std = 0.6;
+      const blocks_mean = 0.6;
+      const blocks_std = 0.6;
+      const turnovers_mean = 1.8;
+      const turnovers_std = 1.1;
+      const points_mean = 15.6;
+      const points_std = 6.9;
+
+      function getPlayerZScores(stats) {
+        const {
+            points,
+            rebounds,
+            assists,
+            blocks,
+            steals,
+            FG_percent,
+            FT_percent,
+            turnovers
+        } = stats;
+
+        const fg_percent_z = (FG_percent - fg_percent_mean) / fg_percent_std;
+        const ft_percent_z = (FT_percent - ft_percent_mean) / ft_percent_std;
+        const rebounds_z = (rebounds - rebounds_mean) / rebounds_std;
+        const assists_z = (assists - assists_mean) / assists_std;
+        const steals_z = (steals - steals_mean) / steals_std;
+        const blocks_z = (blocks - blocks_mean) / blocks_std;
+        const turnovers_z = (turnovers - turnovers_mean) / turnovers_std;
+        const points_z = (points - points_mean) / points_std;
+
+        return [
+            points_z.toFixed(2),
+            rebounds_z.toFixed(2),
+            assists_z.toFixed(2),
+            blocks_z.toFixed(2),
+            steals_z.toFixed(2),
+            fg_percent_z.toFixed(2),
+            ft_percent_z.toFixed(2),
+            turnovers_z.toFixed(2),
+        ];
+      }
     const getDataForPlayerAndSeason = async (_id, _season) => {
         const options = {
         method: 'GET',
@@ -68,10 +120,10 @@ const Feature3Component = () => {
 
       try {
           const response = await axios.request(options);
-          console.log("hiiii");
-          console.log(response.data);
+          //console.log("hiiii");
+          //console.log(response.data);
           const arr = response.data.response;
-          console.log(arr);
+          //console.log(arr);
           var points = 0;
           var rebounds = 0;
           var assists = 0;
@@ -79,13 +131,13 @@ const Feature3Component = () => {
           var steals = 0;
           var total = 0;
           var plusMinus = 0;
-          var fieldGoalPercentage = 0;
+          var FG_percent = 0;
           var fieldGoalMakes = 0;
           var fieldGoalAttempts = 0;
-          var freeThrowPercentage = 0;
+          var FT_percent = 0;
           var freeThrowMakes = 0;
           var freeThrowAttempts = 0;
-          var totalTurnovers = 0;
+          var turnovers = 0;
         for(let i = 0; i < arr.length; i++) {
             points += arr[i].points;
             rebounds += arr[i].totReb;
@@ -97,7 +149,7 @@ const Feature3Component = () => {
             fieldGoalAttempts += arr[i].fga;
             freeThrowMakes += arr[i].ftm;
             freeThrowAttempts += arr[i].fta;
-            totalTurnovers += arr[i].turnovers;
+            turnovers += arr[i].turnovers;
             total += 1;
         }
         points /= total;
@@ -105,23 +157,36 @@ const Feature3Component = () => {
         assists /= total;
         blocks /= total;
         steals /= total;
-        fieldGoalPercentage = fieldGoalMakes/fieldGoalAttempts;
-        freeThrowPercentage = freeThrowMakes/freeThrowAttempts;
-        totalTurnovers /= total;
+        FG_percent = fieldGoalMakes/fieldGoalAttempts;
+        FT_percent = freeThrowMakes/freeThrowAttempts;
+        turnovers /= total;
         const currStats = {
             Points: points.toFixed(1),
             Rebounds: rebounds.toFixed(1),
             Assists: assists.toFixed(1),
             Blocks: blocks.toFixed(1),
             Steals: steals.toFixed(1),
-            PlusMinus: plusMinus.toFixed(1),
-            FieldGoalPercentage: fieldGoalPercentage.toFixed(2),
-            FreeThrowPercentage: freeThrowPercentage.toFixed(2),
-            Turnovers: totalTurnovers.toFixed(1)
+
+            FieldGoalPercentage: FG_percent.toFixed(2),
+            FreeThrowPercentage: FT_percent.toFixed(2),
+            Turnovers: turnovers.toFixed(1),
+            PlusMinus: plusMinus.toFixed(1)
+        }
+        const mathStats = {
+            points,
+            rebounds,
+            assists,
+            blocks,
+            steals,
+            FG_percent,
+            FT_percent,
+            turnovers
         }
         const statsArr = Object.entries(currStats);
         console.log(statsArr);
-
+        const ZScoreArr = getPlayerZScores(mathStats);
+        console.log(ZScoreArr);
+        setZStats(ZScoreArr);
         setStats(statsArr);
 
       } catch (error) {
@@ -169,7 +234,7 @@ const Feature3Component = () => {
             {showModal && (
                 <div className="modal">
                 <div className="modal-content">
-                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false); setShowStats(false)}}>&times;</span>
+                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false); setShowStats(false); setShowZStats(false)}}>&times;</span>
                     <h2>Player List</h2>
                     <table>
                     <thead>
@@ -204,60 +269,41 @@ const Feature3Component = () => {
                         <option value="2022">2022</option>
                         <option value="2023">2023</option>
                     </select>
-                    <button onClick={() => {handleStats(); setShowStats(true);}} type="submit">Get stats</button>
+                    <button onClick={() => {handleStats(); setShowStats(true); setShowZStats(true)}} type="submit">Get stats</button>
                 </div>
                 </div>
             )}
             {showStats && (
-                <div className="modal">
-                <div className="modal-content">
-                    <span className="close" onClick={() => {setShowStats(false);}}>&times;</span>
-                    <h2>Average Stats</h2>
-                    <table>
-                    <thead>
-                        <tr>
-                        <th>Stats</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {stats.map(([key, value]) => (
-                        <tr>
-                            <td>{key}: {value}</td>
-                        </tr>
-                        ))}
-                    </tbody>
-                    </table>
-                </div>
-                </div>
-            )}
-            <h2>Average Player Stats:
-            var fg_percent_mean = 0.468;
-var fg_percent_std = 0.044;
+  <div className="modal">
+    <div className="modal-content">
+      <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
+      <h2>Average Stats and ZStats</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Stat</th>
+            <th>Value</th>
+            <th>Z-Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stats.map(([key, value], index) => (
+            <tr key={index}>
+              <td>{key}</td>
+              <td>{value}</td>
+              <td style={{
+backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green')),
+}}>
+                {Zstats[index]}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
 
-var ft_percent_mean = 0.791;
-var ft_percent_std = 0.072;
-
-var threes_made_mean = 1.9;
-var threes_made_std = 1.3;
-
-var rebounds_mean = 5.7;
-var rebounds_std = 2.8;
-
-var assists_mean = 3.3;
-var assists_std = 2.5;
-
-var steals_mean = 0.9;
-var steals_std = 0.6;
-
-var blocks_mean = 0.6;
-var blocks_std = 0.6;
-
-var turnovers_mean = 1.8;
-var turnovers_std = 1.1;
-
-var points_mean = 15.6;
-var points_std = 6.9;
-            </h2>
         </div>
     );
 };
