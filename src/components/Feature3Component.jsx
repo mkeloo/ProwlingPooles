@@ -26,8 +26,21 @@ const Feature3Component = () => {
         setShowZStats(false);
         //console.log(data);
     };
+
+    const [playerStats, setPlayerStats] = useState([]);
+
+    const addPlayerStatsToTable = () => {
+      const playerName = searchTerm;
+      const playerZStats = Zstats;
+      console.log("Added to table:", playerName, playerZStats);
+      setPlayerStats([...playerStats, { playerName, playerZStats }]);
+  };
+
+
+
     const handleStats = async () => {
         const response = getDataForPlayerAndSeason(currPlayer, season);
+        addPlayerStatsToTable(response.data);
         //console.log(response.data)
     }
     const handlePlayerClick = (player) => {
@@ -54,6 +67,8 @@ const Feature3Component = () => {
         const number = parseInt(numberStr);
         return isNaN(number) ? null : parseInt(sign + numberStr);
       }
+
+
 
       const fg_percent_mean = 0.468;
       const fg_percent_std = 0.044;
@@ -93,6 +108,10 @@ const Feature3Component = () => {
         const turnovers_z = (turnovers - turnovers_mean) / turnovers_std;
         const points_z = (points - points_mean) / points_std;
 
+        const z_scores = [fg_percent_z, ft_percent_z, rebounds_z, assists_z, steals_z, blocks_z, turnovers_z, points_z];
+        const total_z_scores = z_scores.length;
+        const sum_of_z_scores = z_scores.reduce((acc, val) => acc + val, 0);
+        const average_z_score = sum_of_z_scores / total_z_scores;
         return [
             points_z.toFixed(2),
             rebounds_z.toFixed(2),
@@ -102,6 +121,7 @@ const Feature3Component = () => {
             fg_percent_z.toFixed(2),
             ft_percent_z.toFixed(2),
             turnovers_z.toFixed(2),
+            average_z_score.toFixed(2),
         ];
       }
     const getDataForPlayerAndSeason = async (_id, _season) => {
@@ -188,6 +208,7 @@ const Feature3Component = () => {
         console.log(ZScoreArr);
         setZStats(ZScoreArr);
         setStats(statsArr);
+       // playerStats = ZScoreArr;
 
       } catch (error) {
           console.error(error);
@@ -222,9 +243,87 @@ const Feature3Component = () => {
             setShowModal(false);
         }
     };
+    const [tableData, setTableData] = useState([
+      ['Comparison 1', 'Comparison 2'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+    ]);
+
+    const handleCellClick = (row, col) => {
+      const updatedData = [...tableData];
+      const cellContent = [];
+
+      const labels = [
+        "Pts",
+        "Rbs",
+        "Ast",
+        "Blks",
+        "Stls",
+        "FG%",
+        "FT%",
+        "TOs",
+        "Tot",
+      ];
+
+
+      cellContent.push(searchTerm);
+      cellContent.push(<br key="br" />); // Add a line break
+
+      cellContent.push(
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          {labels.map((label, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <span style={{ fontSize: "0.6rem" }}>{label}</span>
+              <span
+                style={{
+                  display: "inline-block",
+                  border: "1px solid black",
+                  padding: "2px 4px",
+                  marginTop: "2px",
+                  backgroundColor:
+                    Zstats[i] < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(Zstats[i] * 20)}%)`
+                      : Zstats[i] > 0
+                      ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[i], 4) * 10)}%)`
+                      : Zstats[i] <= 0.5
+                      ? "lightgreen"
+                      : "green",
+                }}
+              >
+                {Zstats[i]}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+
+      updatedData[row][col] = cellContent;
+      setTableData(updatedData);
+    };
+
+    const clearTable = () => {
+      setTableData([
+      ['Comparison 1', 'Comparison 2'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ]);
+    };
+
+    const calculateValues = () => {
+      // This function will be implemented later
+      console.log("Calculate button clicked");
+    };
+
+    const tableWidth = window.innerWidth - 128;
+    const cellWidth = tableWidth / 2 - 40;
+
     return (
         <div>
-            <input
+        <input
                 type="text"
                 placeholder="Enter player name"
                 value={searchTerm}
@@ -274,38 +373,69 @@ const Feature3Component = () => {
                 </div>
             )}
             {showStats && (
-  <div className="modal">
-    <div className="modal-content">
-      <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
-      <h2>Average Stats and ZStats</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Stat</th>
-            <th>Value</th>
-            <th>Z-Score</th>
-          </tr>
-        </thead>
+              <div className="modal">
+                <div className="modal-content">
+                  <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
+                  <h2>Average Stats and ZStats</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Stat</th>
+                        <th>Value</th>
+                        <th>Z-Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.map(([key, value], index) => (
+                        <tr key={index}>
+                          <td>{key}</td>
+                          <td>{value}</td>
+                          <td style={{
+                            backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green')),
+                          }}>
+                            {Zstats[index]}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', padding: '0 1in' }}>
+      <table style={{ borderCollapse: 'collapse', fontSize: '1.5rem', fontWeight: 'bold', width: '100%' }}>
         <tbody>
-          {stats.map(([key, value], index) => (
-            <tr key={index}>
-              <td>{key}</td>
-              <td>{value}</td>
-              <td style={{
-backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green')),
-}}>
-                {Zstats[index]}
-              </td>
+          {tableData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, colIndex) => (
+                <td
+                  key={`${rowIndex}-${colIndex}`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  style={{
+                    border: '2px solid black',
+                    padding: '20px',
+                    width: '50%', // Adjust this value to change the cell width
+                    height: '100px',
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
+                  }}
+                >
+                  {cell}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  </div>
-)}
-
+    <div style={{ marginTop: '20px',  justifyContent: 'center', alignItems: 'center', display: 'flex',}}>
+        <button onClick={clearTable} style={{ marginRight: '10px' }}>Clear</button>
+        <button onClick={calculateValues}>Calculate</button>
+      </div>
         </div>
     );
 };
 
 export default Feature3Component;
+
