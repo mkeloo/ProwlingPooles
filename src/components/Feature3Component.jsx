@@ -303,6 +303,24 @@ const Feature3Component = () => {
       setTableData(updatedData);
     };
 
+    const clearTable = () => {
+      setTableData([
+      ['Comparison 1', 'Comparison 2'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ]);
+    };
+
+    const calculateValues = () => {
+      // This function will be implemented later
+      console.log("Calculate button clicked");
+    };
+
+    const tableWidth = window.innerWidth - 128;
+    const cellWidth = tableWidth / 2 - 40;
+
     return (
         <div>
         <input
@@ -411,7 +429,10 @@ const Feature3Component = () => {
         </tbody>
       </table>
     </div>
-
+    <div style={{ marginTop: '20px',  justifyContent: 'center', alignItems: 'center', display: 'flex',}}>
+        <button onClick={clearTable} style={{ marginRight: '10px' }}>Clear</button>
+        <button onClick={calculateValues}>Calculate</button>
+      </div>
         </div>
     );
 };
