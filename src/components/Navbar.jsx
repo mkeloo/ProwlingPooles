@@ -69,7 +69,10 @@ const Navbar = () => {
                 Feature 5
               </Link>
               <div>
-                <Link to="/login">
+                {/* <Link to="/login">
+                  <FaUser className="text-2xl text-white" />
+                </Link> */}
+                <Link to="/registration">
                   <FaUser className="text-2xl text-white" />
                 </Link>
               </div>

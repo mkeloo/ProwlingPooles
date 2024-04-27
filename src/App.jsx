@@ -9,6 +9,7 @@ import Feature2 from './pages/Feature2';
 import Feature3 from './pages/Feature3';
 import Feature4 from './pages/Feature4';
 import Feature5 from './pages/Feature5';
+import RegistrationPage from './pages/RegistrationPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 
@@ -18,6 +19,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/registration" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/feature1" element={<Feature1 />} />
         <Route path="/feature2" element={<Feature2 />} />
