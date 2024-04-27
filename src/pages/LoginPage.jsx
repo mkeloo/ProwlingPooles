@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import logo from '../assets/logo2x.png';
 
 function LoginPage() {
@@ -8,6 +9,20 @@ function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.exp > Date.now() / 1000) {
+          navigate('/dashboard'); // Redirect to dashboard if token is valid and not expired
+        }
+      } catch {
+        localStorage.removeItem('token'); // Remove invalid token if error occurs during decoding
+      }
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +41,8 @@ function LoginPage() {
         }
       );
       localStorage.setItem('token', response.data.token);
-      console.log('Login Successful:', response.data);
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login error:', error.response || error);
       setError(
         error.response
           ? error.response.data.message
@@ -90,7 +103,7 @@ function LoginPage() {
           </form>
           <div className="text-sm text-center">
             <a
-              href="/register"
+              href="/registration"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Need to create an account? Create Account

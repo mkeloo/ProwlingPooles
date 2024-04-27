@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Ensure jwtDecode is correctly imported
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -10,8 +11,21 @@ const RegistrationPage = () => {
   });
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.exp > Date.now() / 1000) {
+          navigate('/dashboard'); // Redirect to dashboard if token is valid and not expired
+        }
+      } catch {
+        localStorage.removeItem('token'); // Remove invalid token if error occurs during decoding
+      }
+    }
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,25 +37,14 @@ const RegistrationPage = () => {
       const response = await axios.post(
         'http://localhost:3001/api/auth/register',
         formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: { 'Content-Type': 'application/json' } }
       );
-      localStorage.setItem('token', response.data.token);
-      console.log('Registration successful:', response.data);
       setMessage('Registration successful! Redirecting to dashboard...');
       setIsSuccess(true);
-      setFormData({ username: '', email: '', password: '' });
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
     } catch (error) {
-      console.error(
-        'Registration error:',
-        error.response ? error.response.data.message : error.message
-      );
       setMessage(
         error.response ? error.response.data.message : 'Registration failed!'
       );
@@ -110,6 +113,11 @@ const RegistrationPage = () => {
           <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900">
             Register
           </button>
+          <div className="mt-4 text-center">
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Already have an account? Log in here
+            </Link>
+          </div>
         </form>
       </div>
     </div>
