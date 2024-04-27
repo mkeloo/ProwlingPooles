@@ -26,8 +26,21 @@ const Feature3Component = () => {
         setShowZStats(false);
         //console.log(data);
     };
+
+    const [playerStats, setPlayerStats] = useState([]);
+
+    const addPlayerStatsToTable = () => {
+      const playerName = searchTerm;
+      const playerZStats = Zstats;
+      console.log("Added to table:", playerName, playerZStats);
+      setPlayerStats([...playerStats, { playerName, playerZStats }]);
+  };
+
+
+
     const handleStats = async () => {
         const response = getDataForPlayerAndSeason(currPlayer, season);
+        addPlayerStatsToTable(response.data);
         //console.log(response.data)
     }
     const handlePlayerClick = (player) => {
@@ -54,6 +67,8 @@ const Feature3Component = () => {
         const number = parseInt(numberStr);
         return isNaN(number) ? null : parseInt(sign + numberStr);
       }
+
+
 
       const fg_percent_mean = 0.468;
       const fg_percent_std = 0.044;
@@ -93,6 +108,10 @@ const Feature3Component = () => {
         const turnovers_z = (turnovers - turnovers_mean) / turnovers_std;
         const points_z = (points - points_mean) / points_std;
 
+        const z_scores = [fg_percent_z, ft_percent_z, rebounds_z, assists_z, steals_z, blocks_z, turnovers_z, points_z];
+        const total_z_scores = z_scores.length;
+        const sum_of_z_scores = z_scores.reduce((acc, val) => acc + val, 0);
+        const average_z_score = sum_of_z_scores / total_z_scores;
         return [
             points_z.toFixed(2),
             rebounds_z.toFixed(2),
@@ -102,6 +121,7 @@ const Feature3Component = () => {
             fg_percent_z.toFixed(2),
             ft_percent_z.toFixed(2),
             turnovers_z.toFixed(2),
+            average_z_score.toFixed(2),
         ];
       }
     const getDataForPlayerAndSeason = async (_id, _season) => {
@@ -188,6 +208,7 @@ const Feature3Component = () => {
         console.log(ZScoreArr);
         setZStats(ZScoreArr);
         setStats(statsArr);
+       // playerStats = ZScoreArr;
 
       } catch (error) {
           console.error(error);
@@ -224,7 +245,7 @@ const Feature3Component = () => {
     };
     return (
         <div>
-            <input
+        <input
                 type="text"
                 placeholder="Enter player name"
                 value={searchTerm}
@@ -274,35 +295,66 @@ const Feature3Component = () => {
                 </div>
             )}
             {showStats && (
-  <div className="modal">
-    <div className="modal-content">
-      <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
-      <h2>Average Stats and ZStats</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Stat</th>
-            <th>Value</th>
-            <th>Z-Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.map(([key, value], index) => (
-            <tr key={index}>
-              <td>{key}</td>
-              <td>{value}</td>
-              <td style={{
-backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green')),
-}}>
-                {Zstats[index]}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
+              <div className="modal">
+                <div className="modal-content">
+                  <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
+                  <h2>Average Stats and ZStats</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Stat</th>
+                        <th>Value</th>
+                        <th>Z-Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.map(([key, value], index) => (
+                        <tr key={index}>
+                          <td>{key}</td>
+                          <td>{value}</td>
+                          <td style={{
+                            backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green')),
+                          }}>
+                            {Zstats[index]}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+        <table style={{ margin: 'auto', borderCollapse: 'collapse' }}>
+            <thead>
+                <tr>
+                    <th style={{ padding: '10px', border: '1px solid black' }}>Comparison 1</th>
+                    <th style={{ padding: '10px', border: '1px solid black' }}>Comparison 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style={{ padding: '10px', border: '1px solid black' }}><button onClick={() => addPlayerStatsToTable(stats)}>Add to Table</button></td>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 1, Cell 2</td>
+                </tr>
+                <tr>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 2, Cell 1</td>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 2, Cell 2</td>
+                </tr>
+                <tr>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 3, Cell 1</td>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 3, Cell 2</td>
+                </tr>
+                <tr>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 4, Cell 1</td>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 4, Cell 2</td>
+                </tr>
+                <tr>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 5, Cell 1</td>
+                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 5, Cell 2</td>
+                </tr>
+            </tbody>
+        </table>
 
         </div>
     );
