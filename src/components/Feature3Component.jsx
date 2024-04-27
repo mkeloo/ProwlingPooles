@@ -243,6 +243,66 @@ const Feature3Component = () => {
             setShowModal(false);
         }
     };
+    const [tableData, setTableData] = useState([
+      ['Comparison 1', 'Comparison 2'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+    ]);
+
+    const handleCellClick = (row, col) => {
+      const updatedData = [...tableData];
+      const cellContent = [];
+
+      const labels = [
+        "Pts",
+        "Rbs",
+        "Ast",
+        "Blks",
+        "Stls",
+        "FG%",
+        "FT%",
+        "TOs",
+        "Tot",
+      ];
+
+
+      cellContent.push(searchTerm);
+      cellContent.push(<br key="br" />); // Add a line break
+
+      cellContent.push(
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          {labels.map((label, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <span style={{ fontSize: "0.6rem" }}>{label}</span>
+              <span
+                style={{
+                  display: "inline-block",
+                  border: "1px solid black",
+                  padding: "2px 4px",
+                  marginTop: "2px",
+                  backgroundColor:
+                    Zstats[i] < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(Zstats[i] * 20)}%)`
+                      : Zstats[i] > 0
+                      ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[i], 4) * 10)}%)`
+                      : Zstats[i] <= 0.5
+                      ? "lightgreen"
+                      : "green",
+                }}
+              >
+                {Zstats[i]}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+
+      updatedData[row][col] = cellContent;
+      setTableData(updatedData);
+    };
+
     return (
         <div>
         <input
@@ -325,39 +385,36 @@ const Feature3Component = () => {
               </div>
             )}
 
-        <table style={{ margin: 'auto', borderCollapse: 'collapse' }}>
-            <thead>
-                <tr>
-                    <th style={{ padding: '10px', border: '1px solid black' }}>Comparison 1</th>
-                    <th style={{ padding: '10px', border: '1px solid black' }}>Comparison 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style={{ padding: '10px', border: '1px solid black' }}><button onClick={() => addPlayerStatsToTable(stats)}>Add to Table</button></td>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 1, Cell 2</td>
-                </tr>
-                <tr>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 2, Cell 1</td>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 2, Cell 2</td>
-                </tr>
-                <tr>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 3, Cell 1</td>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 3, Cell 2</td>
-                </tr>
-                <tr>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 4, Cell 1</td>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 4, Cell 2</td>
-                </tr>
-                <tr>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 5, Cell 1</td>
-                    <td style={{ padding: '10px', border: '1px solid black' }}>Row 5, Cell 2</td>
-                </tr>
-            </tbody>
-        </table>
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', padding: '0 1in' }}>
+      <table style={{ borderCollapse: 'collapse', fontSize: '1.5rem', fontWeight: 'bold', width: '100%' }}>
+        <tbody>
+          {tableData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, colIndex) => (
+                <td
+                  key={`${rowIndex}-${colIndex}`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  style={{
+                    border: '2px solid black',
+                    padding: '20px',
+                    width: '50%', // Adjust this value to change the cell width
+                    height: '100px',
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
+                  }}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
 
         </div>
     );
 };
 
 export default Feature3Component;
+
