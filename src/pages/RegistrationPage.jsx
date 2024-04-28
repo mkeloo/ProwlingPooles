@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Ensure jwtDecode is correctly imported
+import { jwtDecode } from 'jwt-decode';
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -19,10 +19,10 @@ const RegistrationPage = () => {
       try {
         const decoded = jwtDecode(token);
         if (decoded.exp > Date.now() / 1000) {
-          navigate('/dashboard'); // Redirect to dashboard if token is valid and not expired
+          navigate('/dashboard');
         }
       } catch {
-        localStorage.removeItem('token'); // Remove invalid token if error occurs during decoding
+        localStorage.removeItem('token');
       }
     }
   }, [navigate]);
