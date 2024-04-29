@@ -243,83 +243,114 @@ const Feature3Component = () => {
             setShowModal(false);
         }
     };
-    const [tableData, setTableData] = useState([
-      ['Comparison 1', 'Comparison 2'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
-    ]);
 
-    const handleCellClick = (row, col) => {
-      const updatedData = [...tableData];
-      const cellContent = [];
-
-      const labels = [
-        "Pts",
-        "Rbs",
-        "Ast",
-        "Blks",
-        "Stls",
-        "FG%",
-        "FT%",
-        "TOs",
-        "Tot",
-      ];
-
-
-      cellContent.push(searchTerm);
-      cellContent.push(<br key="br" />); // Add a line break
-
-      cellContent.push(
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          {labels.map((label, i) => (
-            <div key={i} style={{ textAlign: "center" }}>
-              <span style={{ fontSize: "0.6rem" }}>{label}</span>
-              <span
-                style={{
-                  display: "inline-block",
-                  border: "1px solid black",
-                  padding: "2px 4px",
-                  marginTop: "2px",
-                  backgroundColor:
-                    Zstats[i] < 0
-                      ? `hsl(0, 100%, ${50 - Math.abs(Zstats[i] * 20)}%)`
-                      : Zstats[i] > 0
-                      ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[i], 4) * 10)}%)`
-                      : Zstats[i] <= 0.5
-                      ? "lightgreen"
-                      : "green",
-                }}
-              >
-                {Zstats[i]}
-              </span>
-            </div>
-          ))}
-        </div>
-      );
-
-      updatedData[row][col] = cellContent;
-      setTableData(updatedData);
-    };
-
-    const clearTable = () => {
-      setTableData([
-      ['Comparison 1', 'Comparison 2'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
-      ['Click to Add', 'Click to Add'],
+      const [tableData, setTableData] = useState([
+        ['Comparison 1', 'Comparison 2'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
       ]);
-    };
+      const [leftSums, setLeftSums] = useState(new Array(Zstats.length).fill(0));
+      const [rightSums, setRightSums] = useState(new Array(Zstats.length).fill(0));
 
-    const calculateValues = () => {
-      // This function will be implemented later
-      console.log("Calculate button clicked");
-    };
 
-    const tableWidth = window.innerWidth - 128;
-    const cellWidth = tableWidth / 2 - 40;
+      const handleCellClick = (row, col) => {
+        const updatedData = [...tableData];
+        const cellContent = [];
+
+        const labels = [
+          "Points",
+          "Rebounds",
+          "Assists",
+          "Blocks",
+          "Steals",
+          "FieldGoal%",
+          "FreeThrow%",
+          "Turnovers",
+          "Total",
+        ];
+
+        cellContent.push(searchTerm);
+        cellContent.push(<br key="br" />);
+
+        cellContent.push(
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            {labels.map((label, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <span style={{ fontSize: "0.6rem" }}>{label}</span>
+                <span
+                  style={{
+                    display: "inline-block",
+                    border: "1px solid black",
+                    padding: "2px 4px",
+                    marginTop: "2px",
+                    backgroundColor:
+                      Zstats[i] < 0
+                        ? `hsl(0, 100%, ${50 - Math.abs(Zstats[i] * 20)}%)`
+                        : Zstats[i] > 0
+                        ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[i], 4) * 10)}%)`
+                        : Zstats[i] <= 0.5
+                        ? "lightgreen"
+                        : "green",
+                  }}
+                >
+                  {Zstats[i]}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+
+        updatedData[row][col] = cellContent;
+        setTableData(updatedData);
+      };
+
+      const clearTable = () => {
+        setTableData([
+        ['Comparison 1', 'Comparison 2'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
+        ['Click to Add', 'Click to Add'],
+        ]);
+        setLeftSums(new Array(Zstats.length).fill(0));
+        setRightSums(new Array(Zstats.length).fill(0));
+      };
+
+      const calculateValues = () => {
+        const leftSums = new Array(Zstats.length).fill(0);
+        const rightSums = new Array(Zstats.length).fill(0);
+
+        for (let row = 1; row < tableData.length; row++) {
+          const leftValue = tableData[row][0];
+          const rightValue = tableData[row][1];
+
+          if (leftValue !== '') {
+            const cellContent = leftValue.split("<br />")[2];
+            const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+
+            for (let i = 0; i < zstatsArray.length; i++) {
+              leftSums[i] += zstatsArray[i];
+            }
+          }
+
+          if (rightValue !== '') {
+            const cellContent = rightValue.split("<br />")[2];
+            const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+
+            for (let i = 0; i < zstatsArray.length; i++) {
+              rightSums[i] += zstatsArray[i];
+            }
+          }
+        }
+
+        setLeftSums(leftSums);
+        setRightSums(rightSums);
+      };
+
+      const tableWidth = window.innerWidth - 128;
+      const cellWidth = tableWidth / 2 - 40;
 
     return (
         <div>
@@ -403,36 +434,46 @@ const Feature3Component = () => {
               </div>
             )}
 
-<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', padding: '0 1in' }}>
-      <table style={{ borderCollapse: 'collapse', fontSize: '1.5rem', fontWeight: 'bold', width: '100%' }}>
-        <tbody>
-          {tableData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, colIndex) => (
-                <td
-                  key={`${rowIndex}-${colIndex}`}
-                  onClick={() => handleCellClick(rowIndex, colIndex)}
-                  style={{
-                    border: '2px solid black',
-                    padding: '20px',
-                    width: '50%', // Adjust this value to change the cell width
-                    height: '100px',
-                    textAlign: 'center',
-                    verticalAlign: 'middle',
-                  }}
-                >
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <div style={{ marginTop: '20px',  justifyContent: 'center', alignItems: 'center', display: 'flex',}}>
+<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', padding: '0 1in' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', padding: '0 1in' }}>
+        <table style={{ borderCollapse: 'collapse', fontSize: '2rem', fontWeight: 'bold', width: '100%' }}>
+          <tbody>
+            {tableData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, colIndex) => (
+                  <td
+                    key={`${rowIndex}-${colIndex}`}
+                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                    style={{
+                      border: '2px solid black',
+                      padding: '20px',
+                      width: `${cellWidth}px`,
+                      height: '100px',
+                      textAlign: 'center',
+                      verticalAlign: 'middle',
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {Array.isArray(cell) ? cell : cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: '20px' }}>
         <button onClick={clearTable} style={{ marginRight: '10px' }}>Clear</button>
         <button onClick={calculateValues}>Calculate</button>
+        <div>
+          <span style={{ marginRight: '10px' }}>Left Sums: [{leftSums.join(', ')}]</span>
+          <span>Right Sums: [{rightSums.join(', ')}]</span>
+        </div>
       </div>
+    </div>
+
+
+
         </div>
     );
 };
