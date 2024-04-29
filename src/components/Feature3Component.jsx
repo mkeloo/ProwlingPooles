@@ -314,35 +314,104 @@ const Feature3Component = () => {
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ]);
-        setLeftSums(new Array(Zstats.length).fill(0));
-        setRightSums(new Array(Zstats.length).fill(0));
+        setLeftSums(new Array(Zstats.length).fill(' '));
+        setRightSums(new Array(Zstats.length).fill(' '));
       };
 
       const calculateValues = () => {
-        const leftSums = new Array(Zstats.length).fill(0);
-        const rightSums = new Array(Zstats.length).fill(0);
+        const leftSums = new Array(Zstats.length).fill( ' ');
+        const rightSums = new Array(Zstats.length).fill( ' ');
 
         for (let row = 1; row < tableData.length; row++) {
           const leftValue = tableData[row][0];
           const rightValue = tableData[row][1];
 
-          if (leftValue !== '') {
-            const cellContent = leftValue.split("<br />")[2];
-            const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+          if (leftValue !== 'Click to Add') {
+            console.log("leftValue",leftValue);
+            const cellContent = leftValue[2].props.children;
+            const child1 = cellContent[0].props.children;
+            const child1child1 = child1[1].props.children;
 
-            for (let i = 0; i < zstatsArray.length; i++) {
-              leftSums[i] += zstatsArray[i];
+            const child2 = cellContent[1].props.children;
+            const child2child2 = child2[1].props.children;
+
+            const child3 = cellContent[2].props.children;
+            const child3child3 = child3[1].props.children;
+
+            const child4 = cellContent[3].props.children;
+            const child4child4 = child4[1].props.children;
+
+            const child5 = cellContent[4].props.children;
+            const child5child5 = child5[1].props.children;
+
+            const child6 = cellContent[5].props.children;
+            const child6child6 = child6[1].props.children;
+
+            const child7 = cellContent[6].props.children;
+            const child7child7 = child7[1].props.children;
+
+            const child8 = cellContent[7].props.children;
+            const child8child8 = child8[1].props.children;
+
+            const child9 = cellContent[8].props.children;
+            const child9child9 = child9[1].props.children;
+
+            // Store the bottom child of each level into an array
+            const childrenArray = [child1child1, child2child2, child3child3, child4child4, child5child5, child6child6, child7child7, child8child8, child9child9];
+
+            // Now childrenArray contains the bottom child of each level
+            //console.log("Array of children:", childrenArray);
+            //const cellContent = leftValue.split("<br />")[2];
+            //const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+
+            for (let i = 0; i < childrenArray.length; i++) {
+              leftSums[i] += childrenArray[i];
             }
           }
 
-          if (rightValue !== '') {
-            const cellContent = rightValue.split("<br />")[2];
-            const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+          if (rightValue !== 'Click to Add') {
+            console.log("rightValue", rightValue);
+            const cellContent = rightValue[2].props.children;
+            const child1 = cellContent[0].props.children;
+            const child1child1 = child1[1].props.children;
 
-            for (let i = 0; i < zstatsArray.length; i++) {
-              rightSums[i] += zstatsArray[i];
+            const child2 = cellContent[1].props.children;
+            const child2child2 = child2[1].props.children;
+
+            const child3 = cellContent[2].props.children;
+            const child3child3 = child3[1].props.children;
+
+            const child4 = cellContent[3].props.children;
+            const child4child4 = child4[1].props.children;
+
+            const child5 = cellContent[4].props.children;
+            const child5child5 = child5[1].props.children;
+
+            const child6 = cellContent[5].props.children;
+            const child6child6 = child6[1].props.children;
+
+            const child7 = cellContent[6].props.children;
+            const child7child7 = child7[1].props.children;
+
+            const child8 = cellContent[7].props.children;
+            const child8child8 = child8[1].props.children;
+
+            const child9 = cellContent[8].props.children;
+            const child9child9 = child9[1].props.children;
+
+            // Store the bottom child of each level into an array
+            const childrenArray = [child1child1, child2child2, child3child3, child4child4, child5child5, child6child6, child7child7, child8child8, child9child9];
+
+            // Now childrenArray contains the bottom child of each level
+            // console.log("Array of children:", childrenArray);
+            // const cellContent = rightValue.split("<br />")[2];
+            // const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
+
+            for (let i = 0; i < childrenArray.length; i++) {
+              rightSums[i] += childrenArray[i];
             }
-          }
+        }
+
         }
 
         setLeftSums(leftSums);
