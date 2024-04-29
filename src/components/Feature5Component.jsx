@@ -220,11 +220,11 @@ const Feature5Component = () => {
 
 
     return (
-        <Box>
-             <Flex gap="20px" mb="20px" align="center">
-            <Box>
+        <Box bg="black">
+            <Flex gap="20px" mb="20px" align="center">
+            <Box align="center" color="orange">
                 Team 1
-                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1}>
+                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black">
                     <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -258,9 +258,9 @@ const Feature5Component = () => {
                     <option value="41">Washington Wizards</option>
                 </Select>
             </Box>
-            <Box>
+            <Box align="center" color="orange">
                 Team 2
-                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2}>
+                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black">
                 <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -299,7 +299,7 @@ const Feature5Component = () => {
             {/* <p>Selected Team ID: {searchTerm}</p> */}
             <Flex direction={["column", "row"]} gap="20px">
                 {showStats1 && (
-                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="white">
+                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="black" color="orange">
                         {/* <Box mb="4">
                             <Text fontSize="lg" fontWeight="bold">Team 1 Leaders</Text>
                             <Text>Points Leader: {team1Leader.pointsLeader} ({team1Leader.ppg} PPG)</Text>
@@ -325,7 +325,7 @@ const Feature5Component = () => {
                     </Box>
                 )}
                 {showStats2 && (
-                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="white">
+                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="black" color="orange">
                         <Table size="sm">
                             <Thead>
                                 <Tr><Th>Stat</Th><Th>Value</Th></Tr>
