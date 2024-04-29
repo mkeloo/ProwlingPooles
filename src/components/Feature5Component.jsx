@@ -221,77 +221,79 @@ const Feature5Component = () => {
 
     return (
         <Box>
-            <Flex gap="20px" mb="20px">
+             <Flex gap="20px" mb="20px" align="center">
+            <Box>
                 Team 1
                 <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1}>
-                <option value="null">Please Select A Team</option>
-                <option value="1">Atlanta Hawks</option>
-                <option value="2">Boston Celtics</option>
-                <option value="4">Brooklyn Nets</option>
-                <option value="5">Charlotte Hornets</option>
-                <option value="6">Chicago Bulls</option>
-                <option value="7">Cleveland Cavaliers</option>
-                <option value="8">Dallas Mavericks</option>
-                <option value="9">Denver Nuggets</option>
-                <option value="10">Detroit Pistons</option>
-                <option value="11">Golden State Warriors</option>
-                <option value="14">Houston Rockets</option>
-                <option value="15">Indiana Pacers</option>
-                <option value="16">Los Angeles Clippers</option>
-                <option value="17">Los Angeles Lakers</option>
-                <option value="19">Memphis Grizzlies</option>
-                <option value="20">Miami Heat</option>
-                <option value="21">Milwaukee Bucks</option>
-                <option value="22">Minnesota Timberwolves</option>
-                <option value="23">New Orleans Pelicans</option>
-                <option value="24">New York Knicks</option>
-                <option value="25">Oklahoma City Thunder</option>
-                <option value="26">Orlando Magic</option>
-                <option value="27">Philadelphia 76ers</option>
-                <option value="28">Phoenix Suns</option>
-                <option value="29">Portland Trail Blazers</option>
-                <option value="30">Sacramento Kings</option>
-                <option value="31">San Antonio Spurs</option>
-                <option value="38">Toronto Raptors</option>
-                <option value="40">Utah Jazz</option>
-                <option value="41">Washington Wizards</option>
+                    <option value="null">Please Select A Team</option>
+                    <option value="1">Atlanta Hawks</option>
+                    <option value="2">Boston Celtics</option>
+                    <option value="4">Brooklyn Nets</option>
+                    <option value="5">Charlotte Hornets</option>
+                    <option value="6">Chicago Bulls</option>
+                    <option value="7">Cleveland Cavaliers</option>
+                    <option value="8">Dallas Mavericks</option>
+                    <option value="9">Denver Nuggets</option>
+                    <option value="10">Detroit Pistons</option>
+                    <option value="11">Golden State Warriors</option>
+                    <option value="14">Houston Rockets</option>
+                    <option value="15">Indiana Pacers</option>
+                    <option value="16">Los Angeles Clippers</option>
+                    <option value="17">Los Angeles Lakers</option>
+                    <option value="19">Memphis Grizzlies</option>
+                    <option value="20">Miami Heat</option>
+                    <option value="21">Milwaukee Bucks</option>
+                    <option value="22">Minnesota Timberwolves</option>
+                    <option value="23">New Orleans Pelicans</option>
+                    <option value="24">New York Knicks</option>
+                    <option value="25">Oklahoma City Thunder</option>
+                    <option value="26">Orlando Magic</option>
+                    <option value="27">Philadelphia 76ers</option>
+                    <option value="28">Phoenix Suns</option>
+                    <option value="29">Portland Trail Blazers</option>
+                    <option value="30">Sacramento Kings</option>
+                    <option value="31">San Antonio Spurs</option>
+                    <option value="38">Toronto Raptors</option>
+                    <option value="40">Utah Jazz</option>
+                    <option value="41">Washington Wizards</option>
                 </Select>
-            </Flex>
-            <Flex direction={["column", "row"]} gap="20px">
+            </Box>
+            <Box>
                 Team 2
                 <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2}>
                 <option value="null">Please Select A Team</option>
-                <option value="1">Atlanta Hawks</option>
-                <option value="2">Boston Celtics</option>
-                <option value="4">Brooklyn Nets</option>
-                <option value="5">Charlotte Hornets</option>
-                <option value="6">Chicago Bulls</option>
-                <option value="7">Cleveland Cavaliers</option>
-                <option value="8">Dallas Mavericks</option>
-                <option value="9">Denver Nuggets</option>
-                <option value="10">Detroit Pistons</option>
-                <option value="11">Golden State Warriors</option>
-                <option value="14">Houston Rockets</option>
-                <option value="15">Indiana Pacers</option>
-                <option value="16">Los Angeles Clippers</option>
-                <option value="17">Los Angeles Lakers</option>
-                <option value="19">Memphis Grizzlies</option>
-                <option value="20">Miami Heat</option>
-                <option value="21">Milwaukee Bucks</option>
-                <option value="22">Minnesota Timberwolves</option>
-                <option value="23">New Orleans Pelicans</option>
-                <option value="24">New York Knicks</option>
-                <option value="25">Oklahoma City Thunder</option>
-                <option value="26">Orlando Magic</option>
-                <option value="27">Philadelphia 76ers</option>
-                <option value="28">Phoenix Suns</option>
-                <option value="29">Portland Trail Blazers</option>
-                <option value="30">Sacramento Kings</option>
-                <option value="31">San Antonio Spurs</option>
-                <option value="38">Toronto Raptors</option>
-                <option value="40">Utah Jazz</option>
-                <option value="41">Washington Wizards</option>
+                    <option value="1">Atlanta Hawks</option>
+                    <option value="2">Boston Celtics</option>
+                    <option value="4">Brooklyn Nets</option>
+                    <option value="5">Charlotte Hornets</option>
+                    <option value="6">Chicago Bulls</option>
+                    <option value="7">Cleveland Cavaliers</option>
+                    <option value="8">Dallas Mavericks</option>
+                    <option value="9">Denver Nuggets</option>
+                    <option value="10">Detroit Pistons</option>
+                    <option value="11">Golden State Warriors</option>
+                    <option value="14">Houston Rockets</option>
+                    <option value="15">Indiana Pacers</option>
+                    <option value="16">Los Angeles Clippers</option>
+                    <option value="17">Los Angeles Lakers</option>
+                    <option value="19">Memphis Grizzlies</option>
+                    <option value="20">Miami Heat</option>
+                    <option value="21">Milwaukee Bucks</option>
+                    <option value="22">Minnesota Timberwolves</option>
+                    <option value="23">New Orleans Pelicans</option>
+                    <option value="24">New York Knicks</option>
+                    <option value="25">Oklahoma City Thunder</option>
+                    <option value="26">Orlando Magic</option>
+                    <option value="27">Philadelphia 76ers</option>
+                    <option value="28">Phoenix Suns</option>
+                    <option value="29">Portland Trail Blazers</option>
+                    <option value="30">Sacramento Kings</option>
+                    <option value="31">San Antonio Spurs</option>
+                    <option value="38">Toronto Raptors</option>
+                    <option value="40">Utah Jazz</option>
+                    <option value="41">Washington Wizards</option>
                 </Select>
+            </Box>
             </Flex>
 
             {/* <p>Selected Team ID: {searchTerm}</p> */}
