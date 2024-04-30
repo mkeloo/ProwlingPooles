@@ -16,10 +16,10 @@ function LoginPage() {
       try {
         const decodedToken = jwtDecode(token);
         if (decodedToken.exp > Date.now() / 1000) {
-          navigate('/dashboard'); // Redirect to dashboard if token is valid and not expired
+          navigate('/dashboard');
         }
       } catch {
-        localStorage.removeItem('token'); // Remove invalid token if error occurs during decoding
+        localStorage.removeItem('token');
       }
     }
   }, [navigate]);
