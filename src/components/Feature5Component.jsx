@@ -15,6 +15,7 @@ import { FaStar } from 'react-icons/fa';
      
 
 const Feature5Component = () => {
+    const [isHovered, setIsHovered] = useState(false);
     const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -229,7 +230,7 @@ const Feature5Component = () => {
             <Flex gap="20px" mb="20px" align="center">
             <Box align="center" color="orange">
             Team 1
-                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black">
+                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black" style={{ cursor: 'pointer' }}>
                     <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -265,7 +266,7 @@ const Feature5Component = () => {
             </Box>
             <Box align="center" color="orange">
             Team 2
-                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black">
+                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black" style={{ cursor: 'pointer' }}>
                 <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -299,7 +300,13 @@ const Feature5Component = () => {
                     <option value="41">Washington Wizards</option>
                 </Select>
             </Box>
-            <FaStar color="orange" size="60px" />
+            <FaStar
+                    color={isHovered ? 'blue' : 'orange'}
+                    size="60px"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{ cursor: 'pointer' }}
+                />
             </Flex>
 
             {/* <p>Selected Team ID: {searchTerm}</p> */}
