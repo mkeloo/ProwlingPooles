@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import About from './pages/About.jsx';
+// import About from './pages/About.jsx';
 import Home from './pages/Home.jsx';
 import Navbar from './components/Navbar';
 import Feature1 from './pages/Feature1';

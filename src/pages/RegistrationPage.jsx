@@ -35,7 +35,7 @@ const RegistrationPage = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        'http://localhost:3001/api/auth/register',
+        'https://prowling-pooles-backend.onrender.com/api/auth/register',
         formData,
         { headers: { 'Content-Type': 'application/json' } }
       );

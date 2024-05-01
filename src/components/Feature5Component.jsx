@@ -11,9 +11,11 @@ import { Select,
     Box,
 } from '@chakra-ui/react';
 import teamData from '../utils/leader';
+import { FaStar } from 'react-icons/fa'; 
      
 
 const Feature5Component = () => {
+    const [isHovered, setIsHovered] = useState(false);
     const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -85,8 +87,10 @@ const Feature5Component = () => {
                 blocks += arr[i].blocks;
                 steals += arr[i].steals;
                 plusMinus += arr[i].plusMinus;
-                fieldGoalPercentage += arr[i].fgp;
-                freeThrowPercentage += arr[i].ftp;
+                fieldGoalPercentage += parseFloat(arr[i].fgp);
+                fieldGoalPercentage = fieldGoalPercentage.toFixed(1) + '%';
+                freeThrowPercentage += parseFloat(arr[i].ftp);
+                freeThrowPercentage = freeThrowPercentage.toFixed(1) + '%';
                 totalTurnovers += arr[i].turnovers;
                 games += arr[i].games;
             }
@@ -103,9 +107,9 @@ const Feature5Component = () => {
                 Assists: assists.toFixed(1),
                 Blocks: blocks.toFixed(1),
                 Steals: steals.toFixed(1),
-                PlusMinus: plusMinus.toFixed(1),
-                FieldGoalPercentage: fieldGoalPercentage,
-                FreeThrowPercentage: freeThrowPercentage,
+                "Plus Minus": plusMinus.toFixed(1),
+                "Field Goal %": fieldGoalPercentage,
+                "Free Throw %": freeThrowPercentage,
                 Turnovers: totalTurnovers.toFixed(1)
             }
             const statsArr = Object.entries(gameStats);
@@ -182,8 +186,10 @@ const Feature5Component = () => {
                 blocks += arr[i].blocks;
                 steals += arr[i].steals;
                 plusMinus += arr[i].plusMinus;
-                fieldGoalPercentage += arr[i].fgp;
-                freeThrowPercentage += arr[i].ftp;
+                fieldGoalPercentage += parseFloat(arr[i].fgp);
+                fieldGoalPercentage = fieldGoalPercentage.toFixed(1) + '%';
+                freeThrowPercentage += parseFloat(arr[i].ftp);
+                freeThrowPercentage = freeThrowPercentage.toFixed(1) + '%';
                 totalTurnovers += arr[i].turnovers;
                 games += arr[i].games;
             }
@@ -200,9 +206,9 @@ const Feature5Component = () => {
                 Assists: assists.toFixed(1),
                 Blocks: blocks.toFixed(1),
                 Steals: steals.toFixed(1),
-                PlusMinus: plusMinus.toFixed(1),
-                FieldGoalPercentage: fieldGoalPercentage,
-                FreeThrowPercentage: freeThrowPercentage,
+                "Plus Minus": plusMinus.toFixed(1),
+                "Field Goal %": fieldGoalPercentage,
+                "Free Throw %": freeThrowPercentage,
                 Turnovers: totalTurnovers.toFixed(1)
             }
             const statsArr = Object.entries(gameStats);
@@ -223,8 +229,8 @@ const Feature5Component = () => {
         <Box bg="black">
             <Flex gap="20px" mb="20px" align="center">
             <Box align="center" color="orange">
-                Team 1
-                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black">
+            Team 1
+                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black" style={{ cursor: 'pointer' }}>
                     <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -259,8 +265,8 @@ const Feature5Component = () => {
                 </Select>
             </Box>
             <Box align="center" color="orange">
-                Team 2
-                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black">
+            Team 2
+                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black" style={{ cursor: 'pointer' }}>
                 <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -294,6 +300,13 @@ const Feature5Component = () => {
                     <option value="41">Washington Wizards</option>
                 </Select>
             </Box>
+            <FaStar
+                    color={isHovered ? 'blue' : 'orange'}
+                    size="60px"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{ cursor: 'pointer' }}
+                />
             </Flex>
 
             {/* <p>Selected Team ID: {searchTerm}</p> */}
