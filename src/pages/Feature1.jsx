@@ -20,8 +20,10 @@ import {
   Th,
   Td,
 } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 import playerData from '../utils/players';
 import allTeamsData from '../utils/Teams2023/allTeamsData';
+import { jwtDecode } from 'jwt-decode';
 
 const Feature1 = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,6 +31,7 @@ const Feature1 = () => {
   const [players, setPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [additionalStats, setAdditionalStats] = useState(null);
+  const [savedPlayers, setSavedPlayers] = useState(new Set()); // Stores the IDs of saved players
 
   const getTeamIdByName = (teamName) => {
     const division = Object.values(playerData.NBA).find((division) =>
@@ -59,6 +62,7 @@ const Feature1 = () => {
     }
 
     const playerId = playerFromAllTeams.id;
+    player.id = playerId;
     await fetchPlayerStats(playerId);
     onOpen();
   };
@@ -163,6 +167,7 @@ const Feature1 = () => {
               team.players.forEach((player) => {
                 if (player.name.toLowerCase().includes(searchLower)) {
                   allPlayers.push({
+                    id: player.id,
                     name: player.name,
                     teamName: team.name,
                     teamImage: team.image_url,
@@ -183,6 +188,62 @@ const Feature1 = () => {
     }
 
     setPlayers(allPlayers);
+  };
+
+  const savePlayer = async () => {
+    if (!selectedPlayer || !selectedPlayer.id || !additionalStats) {
+      console.error(
+        'Invalid player data or statistics missing:',
+        selectedPlayer
+      );
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
+
+      const payload = {
+        userId,
+        playerId: selectedPlayer.id,
+        player_name: selectedPlayer.name,
+        team_name: selectedPlayer.teamName,
+        player_image_url: selectedPlayer.imageUrl,
+        team_image_url: selectedPlayer.teamImage,
+        points_per_game: additionalStats.Points,
+        rebounds_per_game: additionalStats.Rebounds,
+        assists_per_game: additionalStats.Assists,
+        blocks_per_game: additionalStats.Blocks,
+        steals_per_game: additionalStats.Steals,
+        fg_percentage: additionalStats.FieldGoalPercentage,
+        ft_percentage: additionalStats.FreeThrowPercentage,
+        turnovers_per_game: additionalStats.Turnovers,
+        plus_minus: additionalStats.PlusMinus,
+      };
+
+      const response = await axios.post(
+        'https://prowling-pooles-backend.onrender.com/api/favorites',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Player saved successfully!', response.data);
+      setSavedPlayers(new Set([...savedPlayers, selectedPlayer.id]));
+    } catch (error) {
+      console.error(
+        'Error saving player:',
+        error.response?.data?.message || error.message
+      );
+    }
+  };
+
+  const isPlayerSaved = (playerId) => {
+    return savedPlayers.has(playerId);
   };
 
   return (
@@ -317,7 +378,23 @@ const Feature1 = () => {
               )}
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
+              <Button
+                onClick={() => savePlayer(selectedPlayer)}
+                leftIcon={
+                  <StarIcon
+                    color={
+                      isPlayerSaved(selectedPlayer.id)
+                        ? 'yellow.500'
+                        : 'gray.300'
+                    }
+                  />
+                }
+                colorScheme="teal"
+                mr={3}
+              >
+                Save Player
+              </Button>
+              <Button colorScheme="blue" onClick={onClose}>
                 Close
               </Button>
             </ModalFooter>
