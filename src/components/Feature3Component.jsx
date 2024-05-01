@@ -161,41 +161,41 @@ const Feature3Component = () => {
       const points_mean = 15.6;
       const points_std = 6.9;
 
-      function getPlayerZScores(stats) {
+      const getPlayerZScores = (stats) => {
         const {
-            points,
-            rebounds,
-            assists,
-            blocks,
-            steals,
-            FG_percent,
-            FT_percent,
-            turnovers
+          points,
+          rebounds,
+          assists,
+          blocks,
+          steals,
+          FG_percent,
+          FT_percent,
+          turnovers
         } = stats;
 
-        const fg_percent_z = (FG_percent - fg_percent_mean) / fg_percent_std;
-        const ft_percent_z = (FT_percent - ft_percent_mean) / ft_percent_std;
-        const rebounds_z = (rebounds - rebounds_mean) / rebounds_std;
-        const assists_z = (assists - assists_mean) / assists_std;
-        const steals_z = (steals - steals_mean) / steals_std;
-        const blocks_z = (blocks - blocks_mean) / blocks_std;
-        const turnovers_z = (turnovers - turnovers_mean) / turnovers_std;
-        const points_z = (points - points_mean) / points_std;
+        const fg_percent_z = Math.round((FG_percent - fg_percent_mean) / fg_percent_std * 100) / 100;
+        const ft_percent_z = Math.round((FT_percent - ft_percent_mean) / ft_percent_std * 100) / 100;
+        const rebounds_z = Math.round((rebounds - rebounds_mean) / rebounds_std * 100) / 100;
+        const assists_z = Math.round((assists - assists_mean) / assists_std * 100) / 100;
+        const steals_z = Math.round((steals - steals_mean) / steals_std * 100) / 100;
+        const blocks_z = Math.round((blocks - blocks_mean) / blocks_std * 100) / 100;
+        const turnovers_z = Math.round((turnovers - turnovers_mean) / turnovers_std * 100) / 100;
+        const points_z = Math.round((points - points_mean) / points_std * 100) / 100;
 
         const z_scores = [fg_percent_z, ft_percent_z, rebounds_z, assists_z, steals_z, blocks_z, turnovers_z, points_z];
         const total_z_scores = z_scores.length;
         const sum_of_z_scores = z_scores.reduce((acc, val) => acc + val, 0);
-        const average_z_score = sum_of_z_scores / total_z_scores;
+        const average_z_score = Math.round(sum_of_z_scores / total_z_scores * 100) / 100;
         return [
-            points_z.toFixed(2),
-            rebounds_z.toFixed(2),
-            assists_z.toFixed(2),
-            blocks_z.toFixed(2),
-            steals_z.toFixed(2),
-            fg_percent_z.toFixed(2),
-            ft_percent_z.toFixed(2),
-            turnovers_z.toFixed(2),
-            average_z_score.toFixed(2),
+          points_z.toFixed(2),
+          rebounds_z.toFixed(2),
+          assists_z.toFixed(2),
+          blocks_z.toFixed(2),
+          steals_z.toFixed(2),
+          fg_percent_z.toFixed(2),
+          ft_percent_z.toFixed(2),
+          turnovers_z.toFixed(2),
+          average_z_score.toFixed(2),
         ];
       }
 
@@ -359,7 +359,7 @@ const Feature3Component = () => {
   };
 
       const [tableData, setTableData] = useState([
-        ['Comparison 1', 'Comparison 2'],
+        ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
@@ -423,7 +423,7 @@ const Feature3Component = () => {
 
       const clearTable = () => {
         setTableData([
-        ['Comparison 1', 'Comparison 2'],
+        ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
@@ -465,7 +465,7 @@ const Feature3Component = () => {
       const newRightSums = new Array(Zstats.length).fill(0);
       const newtotalValues = [...totalValues];
 
-      for (let row = 1; row < tableData.length; row++) {
+      for (let row = 0; row < tableData.length; row++) {
         const leftValue = tableData[row][0];
         const rightValue = tableData[row][1];
 
@@ -601,98 +601,145 @@ const Feature3Component = () => {
           </div>
         )}
         {showStats && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="close" onClick={() => { setShowStats(false); }}>&times;</span>
-              <h2 className="modal-title">Average Stats and ZStats</h2>
-              <table className="stats-table">
-                <thead>
-                  <tr>
-                    <th>Stat</th>
-                    <th>Value</th>
-                    <th>Z-Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.map(([key, value], index) => (
-                    <tr key={index}>
-                      <td>{key}</td>
-                      <td>{value}</td>
-                      <td className="z-score-cell">
-                        <span style={{
-                          backgroundColor: Zstats[index] < 0 ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)` : (Zstats[index] > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)` : (Zstats[index] <= 0.5 ? 'lightgreen' : 'green'))
-                        }}>
-                          {Zstats[index]}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-<div className="comparison-container">
-          <div className="comparison-table">
-            <table className="comparison-table-inner">
-              <tbody>
-                {tableData.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {row.map((cell, colIndex) => (
-                      <td
-                        key={`${rowIndex}-${colIndex}`}
-                        onClick={() => handleCellClick(rowIndex, colIndex)}
-                        className="comparison-cell"
-                      >
-                        {Array.isArray(cell) ? cell : cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="comparison-buttons">
-            <button onClick={clearTable} className="clear-button">Clear</button>
-            <button onClick={calculateValues} className="calculate-button">Calculate</button>
-          </div>
-          <div className="comparison-totals">
-            <div className="total-row">
-              <span className="total-label">Left:</span>
-              {leftSums.map((value, index) => (
-                <span key={index} className={`total-value ${getColorClassName(value)}`} style={{
-                  backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green'))
-                }}>
-                  {value}
-                </span>
-              ))}
-            </div>
-            <div className="total-row">
-              <span className="total-label">Right:</span>
-              {rightSums.map((value, index) => (
-                <span key={index} className={`total-value ${getColorClassName(value)}`} style={{
-                  backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green'))
-                }}>
-                  {value}
-                </span>
-              ))}
-            </div>
-            <div className="total-row">
-              <span className="total-label">Total:</span>
-              {totalValues.map((value, index) => (
-                <span key={index} className={`total-value ${getColorClassName(value)}`} style={{
-                  backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green'))
-                }}>
-                  {value}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  <div className="stats-container">
+    <h2 className="stats-title">Average Stats and ZStats</h2>
+    <table className="stats-table">
+      <thead>
+        <tr>
+          <th>Stat</th>
+          <th>Value</th>
+          <th>Z-Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {stats.map(([key, value], index) => (
+          <tr key={index}>
+            <td>{key}</td>
+            <td>{value}</td>
+            <td className="z-score-cell">
+              <span
+                style={{
+                  backgroundColor:
+                    Zstats[index] < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)`
+                      : Zstats[index] > 0
+                      ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)`
+                      : Zstats[index] <= 0.5
+                      ? 'lightgreen'
+                      : 'green',
+                }}
+              >
+                {Zstats[index]}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}<div className="comparison-container">
+<div className="comparison-table">
+  <table className="comparison-table-inner">
+    <thead>
+      <tr>
+        <th>Comparison 1</th>
+        <th>Comparison 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      {tableData.map((row, rowIndex) => (
+        <tr key={rowIndex}>
+          {row.map((cell, colIndex) => (
+            <td
+              key={`${rowIndex}-${colIndex}`}
+              onClick={() => handleCellClick(rowIndex, colIndex)}
+              className="comparison-cell"
+            >
+              {Array.isArray(cell) ? cell : cell}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<div className="comparison-buttons">
+  <button onClick={clearTable} className="clear-button">
+    Clear
+  </button>
+  <button onClick={calculateValues} className="calculate-button">
+    Calculate
+  </button>
+</div>
+<div className="comparison-totals">
+  <div className="total-row">
+    <span className="total-label">Left:</span>
+    {leftSums.map((value, index) => (
+      <span
+        key={index}
+        className={`total-value ${getColorClassName(value)}`}
+        style={{
+          backgroundColor:
+            value < 0
+              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+              : value > 0
+              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
+              : value <= 0.5
+              ? 'lightgreen'
+              : 'green',
+        }}
+      >
+        {value.toFixed(2)}
+      </span>
+    ))}
+  </div>
+  <div className="total-row">
+    <span className="total-label">Right:</span>
+    {rightSums.map((value, index) => (
+      <span
+        key={index}
+        className={`total-value ${getColorClassName(value)}`}
+        style={{
+          backgroundColor:
+            value < 0
+              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+              : value > 0
+              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
+              : value <= 0.5
+              ? 'lightgreen'
+              : 'green',
+        }}
+      >
+        {value}
+      </span>
+    ))}
+  </div>
+  <div className="total-row">
+    <span className="total-label">Total:</span>
+    {totalValues.map((value, index) => (
+      <span
+        key={index}
+        className={`total-value ${getColorClassName(value)}`}
+        style={{
+          backgroundColor:
+            value < 0
+              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+              : value > 0
+              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
+              : value <= 0.5
+              ? 'lightgreen'
+              : 'green',
+        }}
+      >
+        {value}
+      </span>
+    ))}
+  </div>
+</div>
+</div>
+</div>
+);
+};
 
 export default Feature3Component;
 
