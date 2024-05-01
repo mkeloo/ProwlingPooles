@@ -29,6 +29,7 @@ function Dashboard() {
   const [favorites, setFavorites] = useState([]);
   const [username, setUsername] = useState('User');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [articles, setArticles] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
@@ -42,6 +43,7 @@ function Dashboard() {
       const decoded = jwtDecode(token);
       setUsername(decoded.username || 'User');
       fetchFavorites(token);
+      fetchArticles(token);
     } catch (error) {
       console.error('Token decoding error or token expired:', error);
       logout();
@@ -67,9 +69,33 @@ function Dashboard() {
     }
   };
 
+  const fetchArticles = async (token) => {
+    try {
+      const response = await axios.get(
+        'https://prowling-pooles-backend.onrender.com/api/articles',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setArticles(response.data); // Make sure this line correctly updates the articles state
+    } catch (error) {
+      console.error('Failed to fetch articles:', error);
+      if (error.response && error.response.status === 401) {
+        logout(); // Handle unauthorized access, possibly due to expired token
+      }
+    }
+  };
+
   const showPlayerDetails = (player) => {
     setSelectedPlayer(player);
     onOpen();
+  };
+
+  const showArticleDetails = (article) => {
+    setSelectedArticle(article); // Define setSelectedArticle state handler
+    onOpen(); // Use the same modal controls or define a new one for articles
   };
 
   function logout() {
@@ -112,6 +138,36 @@ function Dashboard() {
           </Box>
         ))}
       </Flex>
+      <Flex wrap="wrap" justify="center">
+        {articles.map((article, index) => (
+          <Box
+            key={index}
+            p={5}
+            m={2}
+            borderWidth="1px"
+            borderRadius="lg"
+            shadow="md"
+            cursor="pointer"
+            className="transition duration-300 ease-in-out hover:shadow-lg"
+            onClick={() => showArticleDetails(article)} // Define `showArticleDetails` function to handle click
+          >
+            <Flex direction="column" align="center">
+              <Image
+                boxSize="100px"
+                src={article.image_url || 'https://via.placeholder.com/150'}
+                alt={article.title || 'Article'}
+                mb={2}
+                className="rounded-full"
+              />
+              <Text fontSize="xl" fontWeight="bold">
+                {article.title}
+              </Text>
+              <Text>{article.source}</Text>
+            </Flex>
+          </Box>
+        ))}
+      </Flex>
+
       {selectedPlayer && (
         <Modal isOpen={isOpen} onClose={onClose} className="relative z-50">
           <ModalOverlay />

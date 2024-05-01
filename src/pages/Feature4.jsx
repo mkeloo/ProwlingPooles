@@ -16,8 +16,10 @@ import {
   Image,
   Flex,
   IconButton,
+  useToast,
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from '@chakra-ui/icons';
+import { jwtDecode } from 'jwt-decode';
 
 const newsSources = [
   {
@@ -63,10 +65,18 @@ const Feature4 = () => {
   const [player, setPlayer] = useState('');
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(0);
+  const [savedArticles, setSavedArticles] = useState(new Set());
+  const toast = useToast();
 
   useEffect(() => {
     fetchArticles();
   }, [page]);
+
+  const generateUniqueId = () => {
+    const timestamp = Date.now().toString(36); // Convert current timestamp to base-36 string
+    const randomString = Math.random().toString(36).substr(2, 5); // Generate a random string
+    return timestamp + randomString; // Combine timestamp and random string to create unique ID
+  };
 
   const fetchArticles = async () => {
     const params = {
@@ -89,27 +99,95 @@ const Feature4 = () => {
 
     try {
       const response = await axios.request(options);
-      setArticles(response.data);
+      const articlesWithIds = response.data.map((article) => ({
+        ...article,
+        article_id: generateUniqueId(), // Assuming you have a function to generate unique IDs
+      }));
+      console.log('Fetched articles:', articlesWithIds); // Debugging statement
+      console.log(generateUniqueId());
+      setArticles(articlesWithIds);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getSourceImage = (source) => {
-    const foundSource = newsSources.find(
-      (ns) => ns.name.toLowerCase() === source.toLowerCase()
+  const getSourceImage = (sourceName) => {
+    const found = newsSources.find(
+      (ns) => ns.name.toLowerCase() === sourceName.toLowerCase()
     );
-    return foundSource
-      ? foundSource.image_url
-      : 'https://via.placeholder.com/100x50';
+    return found ? found.image_url : 'https://via.placeholder.com/100x50';
+  };
+
+  const saveArticle = async (article) => {
+    if (savedArticles.has(article.id)) {
+      toast({
+        title: 'Already saved.',
+        description: 'This article is already in your saved list.',
+        status: 'info',
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: 'Authentication Error',
+          description: 'No authentication token found.',
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      console.log('Saving article with ID:', article.id); // Debugging statement
+
+      const response = await axios.post(
+        'https://prowling-pooles-backend.onrender.com/api/articles',
+        {
+          article_id: article.id, // Ensure this is correctly referenced
+          title: article.title,
+          source: article.source,
+          url: article.url,
+          image_url: article.image_url,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setSavedArticles(new Set([...savedArticles, article.id]));
+      toast({
+        title: 'Article Saved',
+        description: 'The article has been saved successfully.',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Failed to save the article:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save the article. Please try again.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
     <Container maxW="container.xl" centerContent>
       <VStack spacing={4} align="stretch" mt={5}>
-        <Box p={5} shadow="md" borderWidth="1px" className="bg-white">
+        <Box p={5} shadow="md" borderWidth="1px">
           <Heading fontSize="xl">NBA News</Heading>
-          <FormControl id="source">
+          <FormControl>
             <FormLabel>Source</FormLabel>
             <Select
               placeholder="Select source"
@@ -122,7 +200,7 @@ const Feature4 = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl id="team">
+          <FormControl>
             <FormLabel>Team</FormLabel>
             <Input
               placeholder="Team name"
@@ -130,7 +208,7 @@ const Feature4 = () => {
               onChange={(e) => setTeam(e.target.value)}
             />
           </FormControl>
-          <FormControl id="player">
+          <FormControl>
             <FormLabel>Player</FormLabel>
             <Input
               placeholder="Player name"
@@ -138,10 +216,9 @@ const Feature4 = () => {
               onChange={(e) => setPlayer(e.target.value)}
             />
           </FormControl>
-          <FormControl id="limit">
+          <FormControl>
             <FormLabel>Limit</FormLabel>
             <Input
-              placeholder="Limit"
               type="number"
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
@@ -160,13 +237,7 @@ const Feature4 = () => {
         </Box>
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={10}>
           {articles.map((article, index) => (
-            <Box
-              key={index}
-              p={5}
-              shadow="md"
-              borderWidth="1px"
-              className="bg-white"
-            >
+            <Box key={index} p={5} shadow="md" borderWidth="1px">
               <Image
                 src={getSourceImage(article.source)}
                 alt={`${article.source} logo`}
@@ -177,6 +248,15 @@ const Feature4 = () => {
               <Link href={article.url} isExternal color="teal.500">
                 Read more
               </Link>
+              <Button
+                onClick={() => saveArticle(article)}
+                leftIcon={<StarIcon />}
+                colorScheme="yellow"
+                size="sm"
+                mt={2}
+              >
+                Save Article
+              </Button>
             </Box>
           ))}
         </SimpleGrid>
