@@ -385,7 +385,7 @@ const Feature3Component = () => {
           "Turnovers",
           "Total",
         ];
-        console.log("asd",playerName);
+
         cellContent.push(playerName);
         cellContent.push(<br key="br" />);
 
@@ -395,20 +395,7 @@ const Feature3Component = () => {
               <div key={i} style={{ textAlign: "center" }}>
                 <span style={{ fontSize: "0.6rem" }}>{label}</span>
                 <span
-                  style={{
-                    display: "inline-block",
-                    border: "1px solid black",
-                    padding: "2px 4px",
-                    marginTop: "2px",
-                    backgroundColor:
-                      Zstats[i] < 0
-                        ? `hsl(0, 100%, ${50 - Math.abs(Zstats[i] * 20)}%)`
-                        : Zstats[i] > 0
-                        ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[i], 4) * 10)}%)`
-                        : Zstats[i] <= 0.5
-                        ? "lightgreen"
-                        : "green",
-                  }}
+                  className={`comparison-cell ${getColorClassName(Zstats[i])}`}
                 >
                   {Zstats[i]}
                 </span>
@@ -637,10 +624,13 @@ const Feature3Component = () => {
       </tbody>
     </table>
   </div>
-)}<div className="comparison-container">
+)}
+
+<div className="comparison-container">
 <div className="comparison-table">
   <table className="comparison-table-inner">
     <thead>
+
       <tr>
         <th>Comparison 1</th>
         <th>Comparison 2</th>
@@ -672,8 +662,23 @@ const Feature3Component = () => {
   </button>
 </div>
 <div className="comparison-totals">
+  <div className="totals-container">
+    <ul className="legend">
+    <li className="item0">Stats</li>
+  <li className="item1">Points</li>
+  <li className="item2">Rebounds</li>
+  <li className="item3">Assists</li>
+  <li className="item4">Blocks</li>
+  <li className="item5">Steals</li>
+  <li className="item6">FG%</li>
+  <li className="item7">FT%</li>
+  <li className="item8">Turnovers</li>
+  <li className="item9">Total</li>
+
+    </ul>
+    </div>
   <div className="total-row">
-    <span className="total-label">Left:</span>
+    <span className="total-label">Comparison 1:</span>
     {leftSums.map((value, index) => (
       <span
         key={index}
@@ -689,12 +694,12 @@ const Feature3Component = () => {
               : 'green',
         }}
       >
-        {value.toFixed(2)}
+        {value}
       </span>
     ))}
   </div>
   <div className="total-row">
-    <span className="total-label">Right:</span>
+    <span className="total-label">Comparison 2:</span>
     {rightSums.map((value, index) => (
       <span
         key={index}
@@ -715,7 +720,7 @@ const Feature3Component = () => {
     ))}
   </div>
   <div className="total-row">
-    <span className="total-label">Total:</span>
+    <span className="total-label">ΔTotal</span>
     {totalValues.map((value, index) => (
       <span
         key={index}
