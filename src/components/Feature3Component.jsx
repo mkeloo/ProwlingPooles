@@ -461,8 +461,8 @@ const Feature3Component = () => {
 
 
     const calculateValues = () => {
-      const newLeftSums = [...leftSums];
-      const newRightSums = [...rightSums];
+      const newLeftSums = new Array(Zstats.length).fill(0);
+      const newRightSums = new Array(Zstats.length).fill(0);
       const newtotalValues = [...totalValues];
 
       for (let row = 1; row < tableData.length; row++) {
@@ -470,16 +470,16 @@ const Feature3Component = () => {
         const rightValue = tableData[row][1];
 
         if (Array.isArray(leftValue) && leftValue.length > 0 && leftValue[0]) {
-          for (let i = 0; i < Zstats.length; i++) {
-            newLeftSums[i] = ((newLeftSums[i] || 0) + parseFloat(Zstats[i]));
-            newLeftSums[i] = parseFloat(newLeftSums[i].toFixed(2));
+          const zstatsArray = extractZstatsFromCell(leftValue);
+          for (let i = 0; i < zstatsArray.length; i++) {
+            newLeftSums[i] += zstatsArray[i];
           }
         }
 
         if (Array.isArray(rightValue) && rightValue.length > 0 && rightValue[0]) {
-          for (let i = 0; i < Zstats.length; i++) {
-            newRightSums[i] = ((newRightSums[i] || 0) + parseFloat(Zstats[i]));
-            newRightSums[i] = parseFloat(newRightSums[i].toFixed(2));
+          const zstatsArray = extractZstatsFromCell(rightValue);
+          for (let i = 0; i < zstatsArray.length; i++) {
+            newRightSums[i] += zstatsArray[i];
           }
         }
       }
@@ -508,6 +508,20 @@ const Feature3Component = () => {
           options.push(<option key={year} value={year}>{year}</option>);
         }
         return options;
+    };
+
+    const extractZstatsFromCell = (cellContent) => {
+      const zstatsArray = [];
+      if (Array.isArray(cellContent)) {
+        const divContent = cellContent[2].props.children;
+        for (let i = 0; i < divContent.length; i++) {
+          const spanContent = divContent[i].props.children;
+          if (Array.isArray(spanContent)) {
+            zstatsArray.push(parseFloat(spanContent[1].props.children));
+          }
+        }
+      }
+      return zstatsArray;
     };
 
     const getColorClassName = (value) => {
@@ -650,7 +664,6 @@ const Feature3Component = () => {
                 <span key={index} className={`total-value ${getColorClassName(value)}`} style={{
                   backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green'))
                 }}>
-                  {console.log("left",leftSums)}
                   {value}
                 </span>
               ))}
@@ -661,7 +674,6 @@ const Feature3Component = () => {
                 <span key={index} className={`total-value ${getColorClassName(value)}`} style={{
                   backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green'))
                 }}>
-                  {console.log("right", rightSums)}
                   {value}
                 </span>
               ))}
