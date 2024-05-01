@@ -17,6 +17,8 @@ const Feature3Component = () => {
     const [Zstats, setZStats] = useState([]);
     const [showZStats, setShowZStats] = useState(false);
     const [showStats, setShowStats] = useState(false);
+    const [playerName, setPlayerName] = useState("");
+
     const handleSearch = async () => {
         if(!searchTerm) return;
         const data = searchNames(searchTerm);
@@ -30,19 +32,25 @@ const Feature3Component = () => {
     const [playerStats, setPlayerStats] = useState([]);
 
     const addPlayerStatsToTable = () => {
-      const playerName = searchTerm;
+      //console.log("sadfgsdag", playerName)
+      //const playerName = playerName;
+      //console.log("safaafsd", playerName);
       const playerZStats = Zstats;
-      console.log("Added to table:", playerName, playerZStats);
+      //console.log("Added to table:", playerName, playerZStats);
       setPlayerStats([...playerStats, { playerName, playerZStats }]);
   };
 
 
 
-    const handleStats = async () => {
-        const response = getDataForPlayerAndSeason(currPlayer, season);
-        addPlayerStatsToTable(response.data);
-        //console.log(response.data)
-    }
+  const handleStats = async () => {
+    const response = await getDataForPlayerAndSeason(currPlayer, season);
+    await getPlayerfromId(currPlayer).then(() => {
+      addPlayerStatsToTable();
+    });
+    console.log("111", currPlayer);
+  };
+
+
     const handlePlayerClick = (player) => {
         // Handle click on player row (e.g., show more details)
         //console.log('Clicked on player:', player.name);
@@ -124,6 +132,41 @@ const Feature3Component = () => {
             average_z_score.toFixed(2),
         ];
       }
+
+      function parseNumber(str) {
+        // Remove any extra characters from the string
+        //console.log("check", str);
+        const cleanedStr = str.replace(/[^\d.-]/g, '');
+        // Convert the cleaned string to a floating-point number
+        const number = parseFloat(cleanedStr);
+        // Return the resulting number
+        return isNaN(number) ? 0 : number;
+    }
+
+    const getPlayerfromId = async (_id) => {
+      const options = {
+        method: 'GET',
+        url: 'https://api-nba-v1.p.rapidapi.com/players',
+        params: {
+          id: _id
+        },
+        headers: {
+          'X-RapidAPI-Key': nbaApiKey,
+          'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
+        }
+      };
+
+      try {
+        const response = await axios.request(options);
+        const first = response.data.response[0]["firstname"];
+        const second = response.data.response[0]["lastname"];
+        const name = first + " " + second;
+        setPlayerName(name);
+        console.log(name);
+      } catch (error) {
+        console.error(error);
+      }
+    }
     const getDataForPlayerAndSeason = async (_id, _season) => {
         const options = {
         method: 'GET',
@@ -203,9 +246,9 @@ const Feature3Component = () => {
             turnovers
         }
         const statsArr = Object.entries(currStats);
-        console.log(statsArr);
+        //console.log(statsArr);
         const ZScoreArr = getPlayerZScores(mathStats);
-        console.log(ZScoreArr);
+        //console.log(ZScoreArr);
         setZStats(ZScoreArr);
         setStats(statsArr);
        // playerStats = ZScoreArr;
@@ -235,7 +278,7 @@ const Feature3Component = () => {
                 name: `${player.firstname} ${player.lastname}`
             }));
             setPlayersInfo(playersInfoNew);
-            console.log(playersInfoNew);
+            //console.log("sdaf",playersInfoNew);
             setShowModal(true);
             //console.log(response.data.response);
         } catch (error) {
@@ -253,6 +296,7 @@ const Feature3Component = () => {
       ]);
       const [leftSums, setLeftSums] = useState(new Array(Zstats.length).fill(0));
       const [rightSums, setRightSums] = useState(new Array(Zstats.length).fill(0));
+      const [totalValues, setTotalValues] = useState(new Array(Zstats.length).fill(0));
 
 
       const handleCellClick = (row, col) => {
@@ -270,8 +314,8 @@ const Feature3Component = () => {
           "Turnovers",
           "Total",
         ];
-
-        cellContent.push(searchTerm);
+        console.log(playerName);
+        cellContent.push(playerName);
         cellContent.push(<br key="br" />);
 
         cellContent.push(
@@ -314,109 +358,70 @@ const Feature3Component = () => {
         ['Click to Add', 'Click to Add'],
         ['Click to Add', 'Click to Add'],
         ]);
-        setLeftSums(new Array(Zstats.length).fill(' '));
-        setRightSums(new Array(Zstats.length).fill(' '));
+        setLeftSums(new Array(Zstats.length).fill(''));
+        setRightSums(new Array(Zstats.length).fill(''));
+        setTotalSums(new Array(Zstats.length).fill(''));
       };
 
-      const calculateValues = () => {
-        const leftSums = new Array(Zstats.length).fill( ' ');
-        const rightSums = new Array(Zstats.length).fill( ' ');
+      function sumDecimalNumbers(input) {
+        // Regular expression to match decimal numbers
+        const regex = /(-?\d+(\.\d+)?)/g;
 
-        for (let row = 1; row < tableData.length; row++) {
-          const leftValue = tableData[row][0];
-          const rightValue = tableData[row][1];
+        // Extract all decimal numbers from the input string
+        const numbers = input.match(regex) || [];
 
-          if (leftValue !== 'Click to Add') {
-            console.log("leftValue",leftValue);
-            const cellContent = leftValue[2].props.children;
-            const child1 = cellContent[0].props.children;
-            const child1child1 = child1[1].props.children;
+        // If there's only one number, return it as is
+        if (numbers.length === 1) {
+            return parseFloat(numbers[0]);
+        }
 
-            const child2 = cellContent[1].props.children;
-            const child2child2 = child2[1].props.children;
+        // Otherwise, sum up the numbers
+        const sum = numbers.reduce((acc, num) => {
+            // Parse the number as a float and add it to the accumulator
+            acc += parseFloat(num);
+            return acc;
+        }, 0);
 
-            const child3 = cellContent[2].props.children;
-            const child3child3 = child3[1].props.children;
+        return sum;
+    }
 
-            const child4 = cellContent[3].props.children;
-            const child4child4 = child4[1].props.children;
+    // Test cases
+    //console.log(sumDecimalNumbers('1.431.43')); // Output: 2.86
 
-            const child5 = cellContent[4].props.children;
-            const child5child5 = child5[1].props.children;
 
-            const child6 = cellContent[5].props.children;
-            const child6child6 = child6[1].props.children;
+    const calculateValues = () => {
+      const newLeftSums = [...leftSums];
+      const newRightSums = [...rightSums];
+      const newtotalValues = [...totalValues];
 
-            const child7 = cellContent[6].props.children;
-            const child7child7 = child7[1].props.children;
+      for (let row = 1; row < tableData.length; row++) {
+        const leftValue = tableData[row][0];
+        const rightValue = tableData[row][1];
 
-            const child8 = cellContent[7].props.children;
-            const child8child8 = child8[1].props.children;
-
-            const child9 = cellContent[8].props.children;
-            const child9child9 = child9[1].props.children;
-
-            // Store the bottom child of each level into an array
-            const childrenArray = [child1child1, child2child2, child3child3, child4child4, child5child5, child6child6, child7child7, child8child8, child9child9];
-
-            // Now childrenArray contains the bottom child of each level
-            //console.log("Array of children:", childrenArray);
-            //const cellContent = leftValue.split("<br />")[2];
-            //const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
-
-            for (let i = 0; i < childrenArray.length; i++) {
-              leftSums[i] += childrenArray[i];
-            }
+        if (Array.isArray(leftValue) && leftValue.length > 0 && leftValue[0]) {
+          for (let i = 0; i < Zstats.length; i++) {
+            newLeftSums[i] = ((newLeftSums[i] || 0) + parseFloat(Zstats[i]));
+            newLeftSums[i] = parseFloat(newLeftSums[i].toFixed(2));
           }
-
-          if (rightValue !== 'Click to Add') {
-            console.log("rightValue", rightValue);
-            const cellContent = rightValue[2].props.children;
-            const child1 = cellContent[0].props.children;
-            const child1child1 = child1[1].props.children;
-
-            const child2 = cellContent[1].props.children;
-            const child2child2 = child2[1].props.children;
-
-            const child3 = cellContent[2].props.children;
-            const child3child3 = child3[1].props.children;
-
-            const child4 = cellContent[3].props.children;
-            const child4child4 = child4[1].props.children;
-
-            const child5 = cellContent[4].props.children;
-            const child5child5 = child5[1].props.children;
-
-            const child6 = cellContent[5].props.children;
-            const child6child6 = child6[1].props.children;
-
-            const child7 = cellContent[6].props.children;
-            const child7child7 = child7[1].props.children;
-
-            const child8 = cellContent[7].props.children;
-            const child8child8 = child8[1].props.children;
-
-            const child9 = cellContent[8].props.children;
-            const child9child9 = child9[1].props.children;
-
-            // Store the bottom child of each level into an array
-            const childrenArray = [child1child1, child2child2, child3child3, child4child4, child5child5, child6child6, child7child7, child8child8, child9child9];
-
-            // Now childrenArray contains the bottom child of each level
-            // console.log("Array of children:", childrenArray);
-            // const cellContent = rightValue.split("<br />")[2];
-            // const zstatsArray = cellContent ? cellContent.split(" ").map(parseFloat) : [];
-
-            for (let i = 0; i < childrenArray.length; i++) {
-              rightSums[i] += childrenArray[i];
-            }
         }
 
+        if (Array.isArray(rightValue) && rightValue.length > 0 && rightValue[0]) {
+          for (let i = 0; i < Zstats.length; i++) {
+            newRightSums[i] = ((newRightSums[i] || 0) + parseFloat(Zstats[i]));
+            newRightSums[i] = parseFloat(newRightSums[i].toFixed(2));
+          }
         }
+      }
 
-        setLeftSums(leftSums);
-        setRightSums(rightSums);
-      };
+      for (let i = 0; i < newLeftSums.length; i++) {
+        newtotalValues[i] = parseFloat((newLeftSums[i] - newRightSums[i]).toFixed(2));
+      }
+
+      setLeftSums(newLeftSums);
+      setRightSums(newRightSums);
+      setTotalValues(newtotalValues);
+    };
+
 
       const tableWidth = window.innerWidth - 128;
       const cellWidth = tableWidth / 2 - 40;
@@ -535,8 +540,36 @@ const Feature3Component = () => {
         <button onClick={clearTable} style={{ marginRight: '10px' }}>Clear</button>
         <button onClick={calculateValues}>Calculate</button>
         <div>
-          <span style={{ marginRight: '10px' }}>Left Sums: [{leftSums.join(', ')}]</span>
-          <span>Right Sums: [{rightSums.join(', ')}]</span>
+
+
+        <div>
+    <span style={{ fontWeight: 'bold' }}>Left:   </span>
+    {leftSums.map((value, index) => (
+        <span key={index} style={{ marginRight: '10px', backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green')) }}>
+            {value}
+        </span>
+    ))}
+</div>
+
+<div>
+    <span style={{ fontWeight: 'bold' }}>Right: </span>
+    {rightSums.map((value, index) => (
+        <span key={index} style={{ marginRight: '10px', backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green')) }}>
+            {value}
+        </span>
+    ))}
+</div>
+
+<div>
+<div>
+  <span style={{ fontWeight: 'bold' }}>Total: </span>
+  {totalValues.map((value, index) => (
+    <span key={index} style={{ marginRight: '10px', backgroundColor: value < 0 ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)` : (value > 0 ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)` : (value <= 0.5 ? 'lightgreen' : 'green')) }}>
+      {value}
+    </span>
+  ))}
+</div>
+</div>
         </div>
       </div>
     </div>
