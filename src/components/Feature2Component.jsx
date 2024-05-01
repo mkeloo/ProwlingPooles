@@ -101,7 +101,7 @@ const Feature2Component = () => {
         setSelectedPlayer(player === selectedPlayer ? null : player);
         const firstName = player.name.split(" ")[0];
         const lastName = player.name.split(" ").pop();
-        console.log(player.name); 
+        console.log(player.name);
         console.log('Clicked on player:', player.name);
         console.log('With last name:', lastName);
         var selectedID = "";
@@ -117,7 +117,7 @@ const Feature2Component = () => {
         }
         console.log("SELECTED ID: ", selectedID);
         console.log("SELECTED START SEASON: ", startSeason);
-        setcurrPlayerStartSeason(startSeason);        
+        setcurrPlayerStartSeason(startSeason);
         setCurrPlayer(selectedID);
         setShowSeason(true);
       };
@@ -296,7 +296,7 @@ const Feature2Component = () => {
             className={`p-4 m-8 shadow-lg rounded-xl cursor-pointer transition duration-300 ${
                 selectedPlayer === player ? 'bg-orange-200' : 'bg-slate-200 hover:shadow-xl hover:bg-orange-100'
               }`}
-            
+
             onClick={() => handlePlayerClick(player)}
           >
             <h3 className="font-bold text-xl mb-2 text-center">
@@ -373,11 +373,11 @@ const Feature2Component = () => {
                 <div className="modal-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '600px' }}>
                     <PlayerStatsGraph data={preProcessedArr} />
                     </div>
-                    
-                    
+
+
                 </div>
             )}
-            
+
         </div>
     );
 };

@@ -1,0 +1,72 @@
+.comparison-container {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .comparison-table {
+    margin-bottom: 20px;
+  }
+
+  .comparison-table-inner {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .comparison-table-inner td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    background-color: #fff;
+  }
+
+  .comparison-table-inner tr:nth-child(even) td {
+    background-color: #f9f9f9;
+  }
+
+  .comparison-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .clear-button, .calculate-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .clear-button {
+    background-color: #007bff;
+  }
+
+  .calculate-button {
+    background-color: #28a745;
+  }
+
+  .comparison-totals {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .total-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .total-label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .total-value {
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    color: #fff;
+  }
