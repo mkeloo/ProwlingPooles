@@ -30,6 +30,7 @@ function Dashboard() {
   const [username, setUsername] = useState('User');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [articles, setArticles] = useState([]);
+  const [selectedArticle, setSelectedArticle] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
@@ -94,7 +95,7 @@ function Dashboard() {
   };
 
   const showArticleDetails = (article) => {
-    setSelectedArticle(article); // Define setSelectedArticle state handler
+    setSelectedArticle(article);
     onOpen(); // Use the same modal controls or define a new one for articles
   };
 
@@ -251,6 +252,14 @@ function Dashboard() {
                     ))}
                   </Tbody>
                 </Table>
+              </Flex>
+              <Flex direction="column" align="center">
+                <Image
+                  src={selectedArticle.image_url}
+                  alt={selectedArticle.title}
+                />
+                <Text mt={4}>{selectedArticle.source}</Text>
+                <Text mt={2}>{selectedArticle.description}</Text>
               </Flex>
             </ModalBody>
 

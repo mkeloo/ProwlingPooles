@@ -73,9 +73,9 @@ const Feature4 = () => {
   }, [page]);
 
   const generateUniqueId = () => {
-    const timestamp = Date.now().toString(36); // Convert current timestamp to base-36 string
-    const randomString = Math.random().toString(36).substr(2, 5); // Generate a random string
-    return timestamp + randomString; // Combine timestamp and random string to create unique ID
+    const timestamp = Date.now().toString(36);
+    const randomString = Math.random().toString(36).substr(2, 5);
+    return timestamp + randomString;
   };
 
   const fetchArticles = async () => {
@@ -119,7 +119,7 @@ const Feature4 = () => {
   };
 
   const saveArticle = async (article) => {
-    if (savedArticles.has(article.id)) {
+    if (savedArticles.has(article.article_id)) {
       toast({
         title: 'Already saved.',
         description: 'This article is already in your saved list.',
@@ -143,16 +143,19 @@ const Feature4 = () => {
         return;
       }
 
-      console.log('Saving article with ID:', article.id); // Debugging statement
+      // Retrieve the correct image URL from newsSources based on the article's source
+      const image_url = getSourceImage(article.source);
+
+      console.log('Saving article with ID:', article.article_id);
 
       const response = await axios.post(
         'https://prowling-pooles-backend.onrender.com/api/articles',
         {
-          article_id: article.id, // Ensure this is correctly referenced
+          article_id: article.article_id,
           title: article.title,
           source: article.source,
           url: article.url,
-          image_url: article.image_url,
+          image_url: image_url, // Use the retrieved image URL
         },
         {
           headers: {
@@ -162,7 +165,7 @@ const Feature4 = () => {
         }
       );
 
-      setSavedArticles(new Set([...savedArticles, article.id]));
+      setSavedArticles(new Set([...savedArticles, article.article_id]));
       toast({
         title: 'Article Saved',
         description: 'The article has been saved successfully.',
