@@ -21,31 +21,30 @@ import { FaStar } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 
 const Feature5Component = () => {
-  const [isHovered, setIsHovered] = useState(false);
-  const toast = useToast();
+  const [isHovered, setIsHovered] = useState(false); //not in use
+  const toast = useToast(); //used to display toast notifications
 
-  const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
-  const [searchTerm, setSearchTerm] = useState('');
+  const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY; //NBA API Key
+  const [searchTerm, setSearchTerm] = useState(''); //holds selected team from 1 or 2
 
-  const [team1Info, setTeam1Info] = useState({ name: '', imageUrl: '' });
-  const [team2Info, setTeam2Info] = useState({ name: '', imageUrl: '' });
+  const [team1Info, setTeam1Info] = useState({ name: '', imageUrl: '' }); //stores team 1 name and image
+  const [team2Info, setTeam2Info] = useState({ name: '', imageUrl: '' }); //stores team 2 name and logo
 
-  const [stats1, setStats1] = useState([]);
-  const [showStats1, setShowStats1] = useState(false);
+  const [stats1, setStats1] = useState([]); //stores team 1 stats
+  const [showStats1, setShowStats1] = useState(false); //boolean to show stats
+  const [team1Leader, setLeader1] = useState([]); //stores team 1 stat leader's
 
-  const [team1Leader, setLeader1] = useState([]);
+  const [stats2, setStats2] = useState([]); //stores team 2 stats
+  const [showStats2, setShowStats2] = useState(false); //boolean to show stats
+  const [team2Leader, setLeader2] = useState([]); //stores team 1 stat leader's
 
-  const [stats2, setStats2] = useState([]);
-  const [showStats2, setShowStats2] = useState(false);
+  const [firstTeamid, setFirst] = useState(-1); //not in use
 
-  const [team2Leader, setLeader2] = useState([]);
-  const [firstTeamid, setFirst] = useState(-1);
-
-  const handleSelectChange1 = async (event) => {
+  const handleSelectChange1 = async (event) => { //called for team 1 dropdown
     const selectedValue = event.target.value;
     setSearchTerm(selectedValue);
     setLeader1([]);
-    if (selectedValue === 'null') {
+    if (selectedValue === 'null') { //resets team 1 vars when not selected
       setShowStats1(false);
       setStats1([]);
       setLeader1([]);
@@ -53,7 +52,7 @@ const Feature5Component = () => {
       return;
     }
 
-    const team = playerData.NBA[
+    const team = playerData.NBA[ //gets selected team's id #, name, logo
       Object.keys(playerData.NBA).find((division) =>
         playerData.NBA[division].teams.some(
           (t) => t.id === parseInt(selectedValue)
@@ -61,7 +60,7 @@ const Feature5Component = () => {
       )
     ].teams.find((t) => t.id === parseInt(selectedValue));
 
-    if (team) {
+    if (team) { //log check previous function
       console.log('Selected Team ID:', selectedValue);
       setTeam1Info({
         id: selectedValue,
@@ -73,7 +72,7 @@ const Feature5Component = () => {
     const teamLeaderData = teamData.teams.find(
       (team) => team.id === parseInt(selectedValue)
     );
-    if (teamLeaderData) {
+    if (teamLeaderData) { //retrieve team's stats leaders
       setLeader1({
         pointsLeader: teamLeaderData.pointsLeader,
         ppg: teamLeaderData.ppg,
@@ -83,7 +82,7 @@ const Feature5Component = () => {
         rpg: teamLeaderData.rpg,
       });
     }
-    const options = {
+    const options = { //set up API call
       method: 'GET',
       url: 'https://api-nba-v1.p.rapidapi.com/teams/statistics',
       params: {
@@ -97,7 +96,7 @@ const Feature5Component = () => {
     };
 
     try {
-      const response = await axios.request(options);
+      const response = await axios.request(options); //call api
       // console.log("hiiii");
       // console.log(response.data);
       const arr = response.data.response;
@@ -112,7 +111,7 @@ const Feature5Component = () => {
       var freeThrowPercentage = 0;
       var totalTurnovers = 0;
       var games = 0;
-      for (let i = 0; i < arr.length; i++) {
+      for (let i = 0; i < arr.length; i++) { //assign JSON vars to local vars
         points += arr[i].points;
         rebounds += arr[i].totReb;
         assists += arr[i].assists;
@@ -126,14 +125,14 @@ const Feature5Component = () => {
         totalTurnovers += arr[i].turnovers;
         games += arr[i].games;
       }
-      points /= games;
+      points /= games; //find per game stats
       rebounds /= games;
       assists /= games;
       blocks /= games;
       steals /= games;
       plusMinus /= games;
       totalTurnovers /= games;
-      const gameStats = {
+      const gameStats = { //format stats
         Points: points.toFixed(1),
         Rebounds: rebounds.toFixed(1),
         Assists: assists.toFixed(1),
@@ -147,8 +146,8 @@ const Feature5Component = () => {
       const statsArr = Object.entries(gameStats);
       // console.log(statsArr);
 
-      setStats1(statsArr);
-      setShowStats1(true);
+      setStats1(statsArr); //set stats to stats1
+      setShowStats1(true); //show stats1
     } catch (error) {
       console.error(error);
       setShowStats1(false);
@@ -157,8 +156,8 @@ const Feature5Component = () => {
     // getTeam1Leaders(selectedValue);
   };
 
-  const handleSelectChange2 = async (event) => {
-    const selectedValue = event.target.value;
+  const handleSelectChange2 = async (event) => { //same as handleSelectChange1 but for team 2 dropdown
+    const selectedValue = event.target.value; 
     setSearchTerm(selectedValue);
     setLeader2([]);
     if (selectedValue === 'null') {
@@ -271,8 +270,8 @@ const Feature5Component = () => {
     }
   };
 
-  const renderOptions = () => {
-    const divisions = [
+  const renderOptions = () => { //creates the options for team 1 and 2 dropdowns
+    const divisions = [ 
       'Atlantic',
       'Central',
       'Southeast',
@@ -280,7 +279,7 @@ const Feature5Component = () => {
       'Pacific',
       'Southwest',
     ];
-    return divisions.flatMap((division) =>
+    return divisions.flatMap((division) => //returns map of team names to be displayed
       playerData.NBA[division].teams.map((team) => (
         <option key={team.id} value={team.id}>
           {team.name}
@@ -289,7 +288,7 @@ const Feature5Component = () => {
     );
   };
 
-  const getTeamImageUrl = (teamId) => {
+  const getTeamImageUrl = (teamId) => { //gets the logos of each team
     const divisions = [
       'Atlantic',
       'Central',
@@ -300,7 +299,7 @@ const Feature5Component = () => {
     ];
 
     for (let division of divisions) {
-      const team = playerData.NBA[division].teams.find(
+      const team = playerData.NBA[division].teams.find( //retrieves the url for each team's logo
         (team) => team.id === parseInt(teamId)
       );
       if (team) {
@@ -310,12 +309,12 @@ const Feature5Component = () => {
     return null;
   };
 
-  const saveComparison = async () => {
-    const token = localStorage.getItem('token');
-    const decoded = jwtDecode(token);
+  const saveComparison = async () => { //saves comparision of teams to database if user logged in and saves
+    const token = localStorage.getItem('token'); //gets JWT
+    const decoded = jwtDecode(token); //decodes JWT
     const userId = decoded.id;
 
-    if (!token) {
+    if (!token) { //if not authenticated
       toast({
         title: 'Authentication Error',
         description: 'No authentication token found.',
@@ -326,7 +325,7 @@ const Feature5Component = () => {
       return;
     }
 
-    try {
+    try { //couldn't decode 
     } catch (error) {
       console.error('Error decoding token:', error);
       toast({
@@ -339,7 +338,7 @@ const Feature5Component = () => {
       return;
     }
 
-    const payload = {
+    const payload = { //sets up comparision to be saved to database
       userId,
       team1_id: team1Info.id,
       team1_name: team1Info.name,
@@ -418,7 +417,7 @@ const Feature5Component = () => {
     console.log('Comparison payload:', payload);
 
     try {
-      const response = await axios.post(
+      const response = await axios.post( //send to database
         'https://prowling-pooles-backend.onrender.com/api/team_comparisons',
         payload,
         {
@@ -428,14 +427,14 @@ const Feature5Component = () => {
           },
         }
       );
-      toast({
+      toast({ //success
         title: 'Comparison Saved',
         description: 'Team comparison saved successfully.',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch (error) { //failure
       console.error('Failed to save comparison:', error);
       toast({
         title: 'Error',
@@ -457,47 +456,39 @@ const Feature5Component = () => {
         mb="5"
         className="bg-white p-4 rounded-lg shadow-sm"
       >
-        <Box className="text-center">
-          <span className="font-bold text-lg">Team 1</span>
+        <Box className="text-center"> 
+          <span className="font-bold text-lg">Team 1</span> {/* team 1 dropdown */}
           <Select
             name="team1"
             id="team1"
             className="mt-1 form-select block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             onChange={handleSelectChange1}
-          >
+          > {/* calls handleSelectChange1 upon change */}
             <option value="null">Please Select A Team</option>
-            {renderOptions()}
+            {renderOptions()} {/* generate teams */}
           </Select>
         </Box>
         <Box className="text-center">
-          <span className="font-bold text-lg">Team 2</span>
+          <span className="font-bold text-lg">Team 2</span> {/* team 1 dropdown */}
           <Select
             name="team2"
             id="team2"
             className="mt-1 form-select block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             onChange={handleSelectChange2}
-          >
+          > {/* calls handleSelectChange1 upon change */}
             <option value="null">Please Select A Team</option>
-            {renderOptions()}
+            {renderOptions()} {/* generate teams */}
           </Select>
         </Box>
-        {/* <FaStar
-          color={isHovered ? 'blue' : 'orange'}
-          size="60px"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{ cursor: 'pointer' }}
-          className="transition-colors duration-300"
-        /> */}
-        <Button onClick={saveComparison} colorScheme="blue">
+        <Button onClick={saveComparison} colorScheme="blue"> {/*save comparison button */}
           Save Comparison
         </Button>
       </Flex>
 
       <Flex direction={['column', 'row']} gap="5" className="mt-4">
         {showStats1 && (
-          <Box flex="1" boxShadow="md" p="6" rounded="md" className="bg-white">
-            {/* Display the team's logo centered and larger */}
+          <Box flex="1" boxShadow="md" p="6" rounded="md" className="bg-white"> {/*only displays if showStats1 is true */}
+            {/* Display the team's logo centered and larger from team1Info */}
             {team1Info.imageUrl && (
               <div className="flex flex-col items-center my-4">
                 <h2 className="text-3xl font-bold mb-4">{team1Info.name}</h2>
@@ -519,7 +510,7 @@ const Feature5Component = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {stats1.map(([key, value]) => (
+                {stats1.map(([key, value]) => ( 
                   <Tr key={key}>
                     <Td fontWeight="semibold">{key}</Td>
                     <Td
@@ -531,13 +522,13 @@ const Feature5Component = () => {
                       {value}
                     </Td>
                   </Tr>
-                ))}
+                ))} {/*display contents of stats1 */}
               </Tbody>
             </Table>
             <Box my="4" direction="flex" align="center" justify="center">
               <Text fontSize="xl" fontWeight="bold" textAlign="center" mb="2">
                 Team 1 Leaders
-              </Text>
+              </Text> {/*display team 1 stats leaders */}
               <Table variant="simple">
                 <Tbody>
                   <Tr>
@@ -584,6 +575,7 @@ const Feature5Component = () => {
         {showStats2 && (
           <Box flex="1" boxShadow="md" p="6" rounded="md" className="bg-white">
             {/* Display the team's logo centered and larger */}
+            {/*same as Team1 box but for Team2 */}
             {team2Info.imageUrl && (
               <div className="flex flex-col items-center my-4">
                 <h2 className="text-3xl font-bold mb-4">{team2Info.name}</h2>
