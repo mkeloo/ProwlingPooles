@@ -39,10 +39,13 @@ const RegistrationPage = () => {
         formData,
         { headers: { 'Content-Type': 'application/json' } }
       );
+      // Assuming the backend sends back a token upon successful registration
+      const { token } = response.data; // Destructure the token from the response
+      localStorage.setItem('token', token); // Store the token in localStorage
       setMessage('Registration successful! Redirecting to dashboard...');
       setIsSuccess(true);
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/dashboard'); // Redirect to dashboard after a short delay
       }, 2000);
     } catch (error) {
       setMessage(
