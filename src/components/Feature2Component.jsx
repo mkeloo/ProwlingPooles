@@ -14,17 +14,13 @@ import {
   Box,
   Button,
   useToast,
+  Image,
+  Heading,
+  Text,
+  SimpleGrid,
+  Input,
 } from '@chakra-ui/react';
 import { jwtDecode } from 'jwt-decode';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts';
 
 const Feature2Component = () => {
   const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
@@ -307,156 +303,158 @@ const Feature2Component = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 ">
-      <input
-        type="text"
-        placeholder="Enter player name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="flex-1 mr-4 p-2 border rounded"
-      />
-      <button
-        onClick={handleSearch}
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Search
-      </button>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 m-4 ">
+    <Box className="container mx-auto p-4">
+      <Flex mb={4}>
+        <Input
+          type="text"
+          placeholder="Enter player name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          flex="1"
+          mr={4}
+          p={2}
+          border="1px"
+          borderColor="gray.200"
+          rounded="md"
+        />
+        <Button
+          onClick={handleSearch}
+          colorScheme="blue"
+          px={4}
+          py={2}
+          rounded="md"
+        >
+          Search
+        </Button>
+      </Flex>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={2} className="m-4">
         {players.map((player, index) => (
-          <div
+          <Box
             key={index}
-            className={`p-4 m-8 shadow-lg rounded-xl cursor-pointer transition duration-300 ${
-              selectedPlayer === player
-                ? 'bg-orange-200'
-                : 'bg-slate-200 hover:shadow-xl hover:bg-orange-100'
-            }`}
+            p={4}
+            m={8}
+            shadow="lg"
+            rounded="xl"
+            cursor="pointer"
+            transition="duration-300"
+            bg={selectedPlayer === player ? 'orange.200' : 'slate.200'}
+            _hover={{ shadow: 'xl', bg: 'orange.100' }}
             onClick={() => handlePlayerClick(player)}
           >
-            <h3 className="font-bold text-xl mb-2 text-center">
+            <Heading fontSize="xl" mb={2} textAlign="center">
               {player.name}
-            </h3>
-            <div className="relative h-32 mb-2 ">
-              {player.imageUrl ? (
-                <img
-                  src={player.imageUrl}
-                  alt={player.name}
-                  className="w-full h-full object-contain mx-auto"
-                />
-              ) : (
-                <img
-                  src="https://cdn.mos.cms.futurecdn.net/CPAhzgowLi2NtrP9HfVy9Y-1200-80.png"
-                  alt="Image Not Available"
-                  className="w-full h-full object-contain mx-auto rounded-lg"
-                />
-              )}
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <p className="text-lg font-bold">{player.teamName}</p>
-              <img
-                src={player.teamImage}
-                alt={player.teamName + ' logo'}
-                className="w-12 h-12 object-cover"
+            </Heading>
+            <Box className="relative h-32 mb-2">
+              <Image
+                src={
+                  player.imageUrl ||
+                  'https://cdn.mos.cms.futurecdn.net/CPAhzgowLi2NtrP9HfVy9Y-1200-80.png'
+                }
+                alt={player.name || 'Image Not Available'}
+                className="w-full h-full object-contain mx-auto"
               />
-            </div>
-          </div>
+            </Box>
+            <Flex alignItems="center" justifyContent="center" spaceX={2}>
+              <Text fontSize="lg" fontWeight="bold">
+                {player.teamName}
+              </Text>
+              <Image
+                src={player.teamImage}
+                alt={`${player.teamName} logo`}
+                boxSize="3rem"
+                objectFit="cover"
+              />
+            </Flex>
+          </Box>
         ))}
-      </div>
+      </SimpleGrid>
       {showSeason && (
-        <div className="modal">
-          <div className="modal-content">
-            <span
-              className="close"
-              onClick={() => {
-                setShowSeason(false);
-                setShowSeason(false);
-                setGraphDone(false);
-              }}
-            >
+        <Box className="modal">
+          <Box className="modal-content">
+            <Button className="close" onClick={() => setShowSeason(false)}>
               &times;
-            </span>
-            <h2>Seasons</h2>
-            <select
+            </Button>
+            <Heading fontSize="lg" mb={4}>
+              Seasons
+            </Heading>
+            <Select
               value={season}
               onChange={handleSeasonChange}
-              className="bg-white-500 text-black px-4 py-2 rounded"
+              bg="white"
+              color="black"
+              px={4}
+              py={2}
+              rounded="md"
             >
               {renderSeasonOptions()}
-            </select>
-            <button
+            </Select>
+            <Button
               onClick={() => {
                 handleStats();
                 setShowStats(true);
                 setGraphDone(true);
               }}
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              colorScheme="blue"
+              px={4}
+              py={2}
+              rounded="md"
+              mt={4}
             >
               Get stats
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Box>
       )}
       {graphDone && (
-        <div className="modal" style={{ textAlign: 'center' }}>
-          <h1 className="text-2xl font-bold mt-6">
+        <div className="modal text-center">
+          <h2 className="text-2xl font-bold mt-6">
             Player Stats Throughout the Season
-          </h1>
-          <div
-            className="modal-content"
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '1200px',
-            }}
-          >
+          </h2>
+          <div className="flex items-center justify-between">
             <PlayerStatsGraph data={preProcessedArr} />
           </div>
         </div>
       )}
-      {/* Add the savePlayerStats button */}
+
       {showStats && (
-        <div className="modal">
-          <div className="modal-content">
-            <span
-              className="close"
-              onClick={() => {
-                setShowStats(false);
-                setGraphDone(false);
-              }}
-            >
-              &times;
-            </span>
-            <h2>Player Stats</h2>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>Stat</Th>
-                  <Th>Value</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {stats.map((stat, index) => (
-                  <Tr key={index}>
-                    <Td>{stat[0]}</Td>
-                    <Td>{stat[1]}</Td>
+        <div className="flex justify-center items-between">
+          <Box className="modal">
+            <Box className="modal-content">
+              <Button className="close" onClick={() => setShowStats(false)}>
+                &times;
+              </Button>
+              <Heading fontSize="lg" mb={4}>
+                Player Stats
+              </Heading>
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>Stat</Th>
+                    <Th>Value</Th>
                   </Tr>
-                ))}
-              </Tbody>
-            </Table>
-            <Button
-              onClick={handleSavePlayerStats}
-              colorScheme="blue"
-              size="lg"
-              className="mt-4"
-            >
-              Save Player Stats
-            </Button>
-          </div>
+                </Thead>
+                <Tbody>
+                  {stats.map((stat, index) => (
+                    <Tr key={index}>
+                      <Td>{stat[0]}</Td>
+                      <Td>{stat[1]}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+              <Button
+                onClick={handleSavePlayerStats}
+                colorScheme="blue"
+                size="lg"
+                mt={4}
+              >
+                Save Player Stats
+              </Button>
+            </Box>
+          </Box>
         </div>
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -916,7 +916,7 @@ function Dashboard() {
                 <p className="text-xl font-bold mb-1">
                   {comparison.team1_name} vs {comparison.team2_name}
                 </p>
-                <p>Season: {comparison.season}</p>
+                {/* <p>Season: {comparison.season}</p> */}
               </div>
             ))}
           </div>

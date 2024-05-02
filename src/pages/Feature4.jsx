@@ -186,6 +186,11 @@ const Feature4 = () => {
 
   return (
     <Container maxW="container.xl" centerContent>
+      <div>
+        <h1 className="text-4xl font-bold mb-4 m-4 text-center">
+          NBA News Articles
+        </h1>
+      </div>
       <VStack spacing={4} align="stretch" mt={5}>
         <Box p={5} shadow="md" borderWidth="1px">
           <Heading fontSize="xl">NBA News</Heading>
@@ -240,25 +245,31 @@ const Feature4 = () => {
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={10}>
           {articles.map((article, index) => (
             <Box key={index} p={5} shadow="md" borderWidth="1px">
-              <Image
-                src={getSourceImage(article.source)}
-                alt={`${article.source} logo`}
-                mb={4}
-              />
-              <Heading fontSize="md">{article.title}</Heading>
-              <Text mt={2}>{article.source}</Text>
-              <Link href={article.url} isExternal color="teal.500">
-                Read more
-              </Link>
-              <Button
-                onClick={() => saveArticle(article)}
-                leftIcon={<StarIcon />}
-                colorScheme="yellow"
-                size="sm"
-                mt={2}
-              >
-                Save Article
-              </Button>
+              <div>
+                <Image
+                  src={getSourceImage(article.source)}
+                  alt={`${article.source} logo`}
+                  mb={4}
+                  width={400}
+                  height={200}
+                />
+                <Heading fontSize="md">{article.title}</Heading>
+                <Text mt={2}>{article.source}</Text>
+                <div className="flex items-center justify-between">
+                  <Link href={article.url} isExternal color="teal.500">
+                    Read more
+                  </Link>
+                  <Button
+                    onClick={() => saveArticle(article)}
+                    leftIcon={<StarIcon />}
+                    colorScheme="yellow"
+                    size="sm"
+                    mt={2}
+                  >
+                    Save Article
+                  </Button>
+                </div>
+              </div>
             </Box>
           ))}
         </SimpleGrid>
