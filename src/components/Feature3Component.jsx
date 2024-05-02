@@ -1,750 +1,890 @@
-import React, {useState, useEffect} from 'react';
-import { config } from 'dotenv';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import playerData from '../utils/players';
-import '../utils/App.css'; // Assuming you have a CSS file named App.css
-
-import { Select,
-    Flex,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
-    Box,
-} from '@chakra-ui/react';
+import { jwtDecode } from 'jwt-decode';
+import { useToast } from '@chakra-ui/react';
+import '../utils/App.css';
 
 const Feature3Component = () => {
+  const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
+  const toast = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [players, setPlayers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [playersInfo, setPlayersInfo] = useState([]);
+  const [season, setSeason] = useState('2023');
+  const [showSeason, setShowSeason] = useState(false);
+  const [currPlayer, setCurrPlayer] = useState('');
+  const [stats, setStats] = useState([]);
+  const [Zstats, setZStats] = useState([]);
+  const [showZStats, setShowZStats] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [playerName, setPlayerName] = useState('');
 
-    const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
-    const [searchTerm, setSearchTerm] = useState('');
-    const [players, setPlayers] = useState([]);
-    const [showModal, setShowModal] = useState(false);
-    const [playersInfo, setPlayersInfo] = useState([]);
-    const [season, setSeason] = useState('2023');
-    const [showSeason, setShowSeason] = useState(false);
-    const [currPlayer, setCurrPlayer] = useState("");
-    const [stats, setStats] = useState([]);
-    const [Zstats, setZStats] = useState([]);
-    const [showZStats, setShowZStats] = useState(false);
-    const [showStats, setShowStats] = useState(false);
-    const [playerName, setPlayerName] = useState("");
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [showGraph, setShowGraph] = useState(false);
+  const [graphDone, setGraphDone] = useState(false);
+  const [preProcessedArr, setPreProcessedArr] = useState([]);
+  const [currPlayerStartSeason, setcurrPlayerStartSeason] = useState(2023);
 
-    const [selectedPlayer, setSelectedPlayer] = useState(null);
-    const [showGraph, setShowGraph] = useState(false);
-    const [graphDone, setGraphDone] = useState(false);
-    const [preProcessedArr, setPreProcessedArr] = useState([]);
-    const [currPlayerStartSeason, setcurrPlayerStartSeason] = useState(2023);
-
-    const handleSearch = (e) => {
-      e.preventDefault();
-      const searchLower = searchTerm.trim().toLowerCase();
-      // if(!searchTerm) return;
-      // const data = searchNames(searchTerm);
-      setShowModal(false);
-      setShowStats(false);
-      setShowSeason(false);
-      setGraphDone(false);
-      let allPlayers = [];
-      if (playerData && playerData.NBA) {
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const searchLower = searchTerm.trim().toLowerCase();
+    // if(!searchTerm) return;
+    // const data = searchNames(searchTerm);
+    setShowModal(false);
+    setShowStats(false);
+    setShowSeason(false);
+    setGraphDone(false);
+    let allPlayers = [];
+    if (playerData && playerData.NBA) {
       Object.values(playerData.NBA).forEach((division) => {
-          if (division && division.teams) {
+        if (division && division.teams) {
           division.teams.forEach((team) => {
-              if (team && team.players) {
+            if (team && team.players) {
               team.players.forEach((player) => {
-                  if (player.name.toLowerCase().includes(searchLower)) {
+                if (player.name.toLowerCase().includes(searchLower)) {
                   allPlayers.push({
-                      name: player.name,
-                      teamName: team.name,
-                      teamImage: team.image_url,
-                      imageUrl: player.image,
-                      position: player.position,
-                      age: player.age,
-                      height: player.height,
-                      weight: player.weight,
-                      college: player.college,
-                      salary: player.salary,
+                    name: player.name,
+                    teamName: team.name,
+                    teamImage: team.image_url,
+                    imageUrl: player.image,
+                    position: player.position,
+                    age: player.age,
+                    height: player.height,
+                    weight: player.weight,
+                    college: player.college,
+                    salary: player.salary,
                   });
-                  }
+                }
               });
-              }
+            }
           });
-          }
+        }
       });
-      }
+    }
 
-      setPlayers(allPlayers);
+    setPlayers(allPlayers);
   };
 
-    const [playerStats, setPlayerStats] = useState([]);
+  const [playerStats, setPlayerStats] = useState([]);
 
-    const addPlayerStatsToTable = () => {
-      console.log("sadfgsdag", playerName)
-      //const playerName = playerName;
-      //console.log("safaafsd", playerName);
-      const playerZStats = Zstats;
-      //console.log("Added to table:", playerName, playerZStats);
-      setPlayerStats([...playerStats, { playerName, playerZStats }]);
+  const addPlayerStatsToTable = () => {
+    console.log('sadfgsdag', playerName);
+    //const playerName = playerName;
+    //console.log("safaafsd", playerName);
+    const playerZStats = Zstats;
+    //console.log("Added to table:", playerName, playerZStats);
+    setPlayerStats([...playerStats, { playerName, playerZStats }]);
   };
-
-
 
   const handleStats = async () => {
     console.log(currPlayer);
     const response = await getDataForPlayerAndSeason(currPlayer, season);
     await getPlayerfromId(currPlayer);
     addPlayerStatsToTable();
-    console.log("111", currPlayer);
+    console.log('111', currPlayer);
   };
-
 
   const handlePlayerClick = async (player) => {
     setSelectedPlayer(player === selectedPlayer ? null : player);
-    const firstName = player.name.split(" ")[0];
-    const lastName = player.name.split(" ").pop();
+    const firstName = player.name.split(' ')[0];
+    const lastName = player.name.split(' ').pop();
     console.log(player.name);
     console.log('Clicked on player:', player.name);
     console.log('With last name:', lastName);
-    var selectedID = "";
-    var startSeason = "";
+    var selectedID = '';
+    var startSeason = '';
     const playersInfoCurr = await searchNames(lastName);
-    console.log("PLAYERS INFO");
+    console.log('PLAYERS INFO');
     console.log(playersInfo);
-    for(let i = 0; i < playersInfoCurr.length; i++) {
-        if(playersInfoCurr[i].name.split(" ")[0] == firstName) {
-            selectedID = playersInfoCurr[i].id;
-            startSeason = playersInfoCurr[i].start;
-        }
+    for (let i = 0; i < playersInfoCurr.length; i++) {
+      if (playersInfoCurr[i].name.split(' ')[0] == firstName) {
+        selectedID = playersInfoCurr[i].id;
+        startSeason = playersInfoCurr[i].start;
+      }
     }
-    console.log("SELECTED ID: ", selectedID);
-    console.log("SELECTED START SEASON: ", startSeason);
+    console.log('SELECTED ID: ', selectedID);
+    console.log('SELECTED START SEASON: ', startSeason);
     setcurrPlayerStartSeason(startSeason);
     setCurrPlayer(selectedID);
     setShowSeason(true);
   };
 
-      const handleSeasonChange = (event) => {
-        // Handle click on player row (e.g., show more details)
-        // console.log('Clicked on player:', player.name);
-        // console.log('With id:', player.id);
-        setShowSeason(true);
-        setSeason(event.target.value);
-
-      };
-
-      function convertToNumber(str) {
-        // Remove leading "+" or "-"
-        const sign = str.startsWith("-") ? "-" : "";
-        const numberStr = str.replace(/^[\+\-]/, '');
-        // Convert remaining characters into a number
-        const number = parseInt(numberStr);
-        return isNaN(number) ? null : parseInt(sign + numberStr);
-      }
-
-
-
-      const fg_percent_mean = 0.468;
-      const fg_percent_std = 0.044;
-      const ft_percent_mean = 0.791;
-      const ft_percent_std = 0.072;
-      const rebounds_mean = 5.7;
-      const rebounds_std = 2.8;
-      const assists_mean = 3.3;
-      const assists_std = 2.5;
-      const steals_mean = 0.9;
-      const steals_std = 0.6;
-      const blocks_mean = 0.6;
-      const blocks_std = 0.6;
-      const turnovers_mean = 1.8;
-      const turnovers_std = 1.1;
-      const points_mean = 15.6;
-      const points_std = 6.9;
-
-      const getPlayerZScores = (stats) => {
-        const {
-          points,
-          rebounds,
-          assists,
-          blocks,
-          steals,
-          FG_percent,
-          FT_percent,
-          turnovers
-        } = stats;
-
-        const fg_percent_z = Math.round((FG_percent - fg_percent_mean) / fg_percent_std * 100) / 100;
-        const ft_percent_z = Math.round((FT_percent - ft_percent_mean) / ft_percent_std * 100) / 100;
-        const rebounds_z = Math.round((rebounds - rebounds_mean) / rebounds_std * 100) / 100;
-        const assists_z = Math.round((assists - assists_mean) / assists_std * 100) / 100;
-        const steals_z = Math.round((steals - steals_mean) / steals_std * 100) / 100;
-        const blocks_z = Math.round((blocks - blocks_mean) / blocks_std * 100) / 100;
-        const turnovers_z = Math.round((turnovers - turnovers_mean) / turnovers_std * 100) / 100;
-        const points_z = Math.round((points - points_mean) / points_std * 100) / 100;
-
-        const z_scores = [fg_percent_z, ft_percent_z, rebounds_z, assists_z, steals_z, blocks_z, turnovers_z, points_z];
-        const total_z_scores = z_scores.length;
-        const sum_of_z_scores = z_scores.reduce((acc, val) => acc + val, 0);
-        const average_z_score = Math.round(sum_of_z_scores / total_z_scores * 100) / 100;
-        return [
-          points_z.toFixed(2),
-          rebounds_z.toFixed(2),
-          assists_z.toFixed(2),
-          blocks_z.toFixed(2),
-          steals_z.toFixed(2),
-          fg_percent_z.toFixed(2),
-          ft_percent_z.toFixed(2),
-          turnovers_z.toFixed(2),
-          average_z_score.toFixed(2),
-        ];
-      }
-
-      function parseNumber(str) {
-        // Remove any extra characters from the string
-        //console.log("check", str);
-        const cleanedStr = str.replace(/[^\d.-]/g, '');
-        // Convert the cleaned string to a floating-point number
-        const number = parseFloat(cleanedStr);
-        // Return the resulting number
-        return isNaN(number) ? 0 : number;
-    }
-
-    const getPlayerfromId = async (_id) => {
-      const options = {
-        method: 'GET',
-        url: 'https://api-nba-v1.p.rapidapi.com/players',
-        params: {
-          id: _id
-        },
-        headers: {
-          'X-RapidAPI-Key': nbaApiKey,
-          'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
-        }
-      };
-
-      try {
-        const response = await axios.request(options);
-        const first = response.data.response[0]["firstname"];
-        const last = response.data.response[0]["lastname"];
-        const name = `${first} ${last}`;
-        setPlayerName(name);
-        console.log(name);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    const getDataForPlayerAndSeason = async (_id, _season) => {
-        const options = {
-        method: 'GET',
-        url: 'https://api-nba-v1.p.rapidapi.com/players/statistics',
-        params: {
-          id: _id,
-          season: _season
-        },
-        headers: {
-             'X-RapidAPI-Key': nbaApiKey,
-             'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
-        }
-      };
-
-      try {
-          const response = await axios.request(options);
-          //console.log("hiiii");
-          //console.log(response.data);
-          const arr = response.data.response;
-          console.log(arr);
-          var points = 0;
-          var rebounds = 0;
-          var assists = 0;
-          var blocks = 0;
-          var steals = 0;
-          var total = 0;
-          var plusMinus = 0;
-          var FG_percent = 0;
-          var fieldGoalMakes = 0;
-          var fieldGoalAttempts = 0;
-          var FT_percent = 0;
-          var freeThrowMakes = 0;
-          var freeThrowAttempts = 0;
-          var turnovers = 0;
-        for(let i = 0; i < arr.length; i++) {
-            points += arr[i].points;
-            rebounds += arr[i].totReb;
-            assists += arr[i].assists;
-            blocks += arr[i].blocks;
-            steals += arr[i].steals;
-            plusMinus += convertToNumber(arr[i].plusMinus);
-            fieldGoalMakes += arr[i].fgm;
-            fieldGoalAttempts += arr[i].fga;
-            freeThrowMakes += arr[i].ftm;
-            freeThrowAttempts += arr[i].fta;
-            turnovers += arr[i].turnovers;
-            total += 1;
-        }
-        points /= total;
-        rebounds /= total;
-        assists /= total;
-        blocks /= total;
-        steals /= total;
-        FG_percent = fieldGoalMakes/fieldGoalAttempts;
-        FT_percent = freeThrowMakes/freeThrowAttempts;
-        turnovers /= total;
-        const currStats = {
-            Points: points.toFixed(1),
-            Rebounds: rebounds.toFixed(1),
-            Assists: assists.toFixed(1),
-            Blocks: blocks.toFixed(1),
-            Steals: steals.toFixed(1),
-
-            FieldGoalPercentage: FG_percent.toFixed(2),
-            FreeThrowPercentage: FT_percent.toFixed(2),
-            Turnovers: turnovers.toFixed(1),
-            PlusMinus: plusMinus.toFixed(1)
-        }
-        const mathStats = {
-            points,
-            rebounds,
-            assists,
-            blocks,
-            steals,
-            FG_percent,
-            FT_percent,
-            turnovers
-        }
-        const statsArr = Object.entries(currStats);
-        //console.log(statsArr);
-        const ZScoreArr = getPlayerZScores(mathStats);
-        //console.log(ZScoreArr);
-        setZStats(ZScoreArr);
-        setStats(statsArr);
-        console.log(ZScoreArr);
-        console.log(statsArr);
-       // playerStats = ZScoreArr;
-
-      } catch (error) {
-          console.error(error);
-      }
-
-    };
-    const searchNames = async (name) => {
-      //const axios = require('axios');
-
-      const options = {
-        method: 'GET',
-        url: 'https://api-nba-v1.p.rapidapi.com/players',
-        params: {search: name},
-        headers: {
-          'X-RapidAPI-Key': nbaApiKey,
-          'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com'
-        }
-      };
-
-      try {
-          const response = await axios.request(options);
-          const playersInfoNew = response.data.response.map(player => ({
-              id: player.id,
-              name: `${player.firstname} ${player.lastname}`,
-              start: player.nba.start
-          }));
-
-          setPlayersInfo(playersInfoNew);
-          console.log("PLAYERSINFONEW");
-          console.log(playersInfo);
-          return playersInfoNew
-          // setShowModal(true);
-      } catch (error) {
-          console.error(error);
-          // setShowModal(false);
-      }
+  const handleSeasonChange = (event) => {
+    // Handle click on player row (e.g., show more details)
+    // console.log('Clicked on player:', player.name);
+    // console.log('With id:', player.id);
+    setShowSeason(true);
+    setSeason(event.target.value);
   };
 
-      const [tableData, setTableData] = useState([
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-      ]);
-      const [leftSums, setLeftSums] = useState(new Array(Zstats.length).fill(0));
-      const [rightSums, setRightSums] = useState(new Array(Zstats.length).fill(0));
-      const [totalValues, setTotalValues] = useState(new Array(Zstats.length).fill(0));
+  function convertToNumber(str) {
+    // Remove leading "+" or "-"
+    const sign = str.startsWith('-') ? '-' : '';
+    const numberStr = str.replace(/^[\+\-]/, '');
+    // Convert remaining characters into a number
+    const number = parseInt(numberStr);
+    return isNaN(number) ? null : parseInt(sign + numberStr);
+  }
 
+  const fg_percent_mean = 0.468;
+  const fg_percent_std = 0.044;
+  const ft_percent_mean = 0.791;
+  const ft_percent_std = 0.072;
+  const rebounds_mean = 5.7;
+  const rebounds_std = 2.8;
+  const assists_mean = 3.3;
+  const assists_std = 2.5;
+  const steals_mean = 0.9;
+  const steals_std = 0.6;
+  const blocks_mean = 0.6;
+  const blocks_std = 0.6;
+  const turnovers_mean = 1.8;
+  const turnovers_std = 1.1;
+  const points_mean = 15.6;
+  const points_std = 6.9;
 
-      const handleCellClick = (row, col) => {
-        const updatedData = [...tableData];
-        const cellContent = [];
+  const getPlayerZScores = (stats) => {
+    const {
+      points,
+      rebounds,
+      assists,
+      blocks,
+      steals,
+      FG_percent,
+      FT_percent,
+      turnovers,
+    } = stats;
 
-        const labels = [
-          "Points",
-          "Rebounds",
-          "Assists",
-          "Blocks",
-          "Steals",
-          "FieldGoal%",
-          "FreeThrow%",
-          "Turnovers",
-          "Total",
-        ];
+    const fg_percent_z =
+      Math.round(((FG_percent - fg_percent_mean) / fg_percent_std) * 100) / 100;
+    const ft_percent_z =
+      Math.round(((FT_percent - ft_percent_mean) / ft_percent_std) * 100) / 100;
+    const rebounds_z =
+      Math.round(((rebounds - rebounds_mean) / rebounds_std) * 100) / 100;
+    const assists_z =
+      Math.round(((assists - assists_mean) / assists_std) * 100) / 100;
+    const steals_z =
+      Math.round(((steals - steals_mean) / steals_std) * 100) / 100;
+    const blocks_z =
+      Math.round(((blocks - blocks_mean) / blocks_std) * 100) / 100;
+    const turnovers_z =
+      Math.round(((turnovers - turnovers_mean) / turnovers_std) * 100) / 100;
+    const points_z =
+      Math.round(((points - points_mean) / points_std) * 100) / 100;
 
-        cellContent.push(playerName);
-        cellContent.push(<br key="br" />);
+    const z_scores = [
+      fg_percent_z,
+      ft_percent_z,
+      rebounds_z,
+      assists_z,
+      steals_z,
+      blocks_z,
+      turnovers_z,
+      points_z,
+    ];
+    const total_z_scores = z_scores.length;
+    const sum_of_z_scores = z_scores.reduce((acc, val) => acc + val, 0);
+    const average_z_score =
+      Math.round((sum_of_z_scores / total_z_scores) * 100) / 100;
+    return [
+      points_z.toFixed(2),
+      rebounds_z.toFixed(2),
+      assists_z.toFixed(2),
+      blocks_z.toFixed(2),
+      steals_z.toFixed(2),
+      fg_percent_z.toFixed(2),
+      ft_percent_z.toFixed(2),
+      turnovers_z.toFixed(2),
+      average_z_score.toFixed(2),
+    ];
+  };
 
-        cellContent.push(
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            {labels.map((label, i) => (
-              <div key={i} style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "0.6rem" }}>{label}</span>
-                <span
-                  className={`comparison-cell ${getColorClassName(Zstats[i])}`}
-                >
-                  {Zstats[i]}
-                </span>
-              </div>
-            ))}
+  function parseNumber(str) {
+    // Remove any extra characters from the string
+    //console.log("check", str);
+    const cleanedStr = str.replace(/[^\d.-]/g, '');
+    // Convert the cleaned string to a floating-point number
+    const number = parseFloat(cleanedStr);
+    // Return the resulting number
+    return isNaN(number) ? 0 : number;
+  }
+
+  const getPlayerfromId = async (_id) => {
+    const options = {
+      method: 'GET',
+      url: 'https://api-nba-v1.p.rapidapi.com/players',
+      params: {
+        id: _id,
+      },
+      headers: {
+        'X-RapidAPI-Key': nbaApiKey,
+        'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com',
+      },
+    };
+
+    try {
+      const response = await axios.request(options);
+      const first = response.data.response[0]['firstname'];
+      const last = response.data.response[0]['lastname'];
+      const name = `${first} ${last}`;
+      setPlayerName(name);
+      console.log(name);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const getDataForPlayerAndSeason = async (_id, _season) => {
+    const options = {
+      method: 'GET',
+      url: 'https://api-nba-v1.p.rapidapi.com/players/statistics',
+      params: {
+        id: _id,
+        season: _season,
+      },
+      headers: {
+        'X-RapidAPI-Key': nbaApiKey,
+        'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com',
+      },
+    };
+
+    try {
+      const response = await axios.request(options);
+      //console.log("hiiii");
+      //console.log(response.data);
+      const arr = response.data.response;
+      console.log(arr);
+      var points = 0;
+      var rebounds = 0;
+      var assists = 0;
+      var blocks = 0;
+      var steals = 0;
+      var total = 0;
+      var plusMinus = 0;
+      var FG_percent = 0;
+      var fieldGoalMakes = 0;
+      var fieldGoalAttempts = 0;
+      var FT_percent = 0;
+      var freeThrowMakes = 0;
+      var freeThrowAttempts = 0;
+      var turnovers = 0;
+      for (let i = 0; i < arr.length; i++) {
+        points += arr[i].points;
+        rebounds += arr[i].totReb;
+        assists += arr[i].assists;
+        blocks += arr[i].blocks;
+        steals += arr[i].steals;
+        plusMinus += convertToNumber(arr[i].plusMinus);
+        fieldGoalMakes += arr[i].fgm;
+        fieldGoalAttempts += arr[i].fga;
+        freeThrowMakes += arr[i].ftm;
+        freeThrowAttempts += arr[i].fta;
+        turnovers += arr[i].turnovers;
+        total += 1;
+      }
+      points /= total;
+      rebounds /= total;
+      assists /= total;
+      blocks /= total;
+      steals /= total;
+      FG_percent = fieldGoalMakes / fieldGoalAttempts;
+      FT_percent = freeThrowMakes / freeThrowAttempts;
+      turnovers /= total;
+      const currStats = {
+        Points: points.toFixed(1),
+        Rebounds: rebounds.toFixed(1),
+        Assists: assists.toFixed(1),
+        Blocks: blocks.toFixed(1),
+        Steals: steals.toFixed(1),
+
+        FieldGoalPercentage: FG_percent.toFixed(2),
+        FreeThrowPercentage: FT_percent.toFixed(2),
+        Turnovers: turnovers.toFixed(1),
+        PlusMinus: plusMinus.toFixed(1),
+      };
+      const mathStats = {
+        points,
+        rebounds,
+        assists,
+        blocks,
+        steals,
+        FG_percent,
+        FT_percent,
+        turnovers,
+      };
+      const statsArr = Object.entries(currStats);
+      //console.log(statsArr);
+      const ZScoreArr = getPlayerZScores(mathStats);
+      //console.log(ZScoreArr);
+      setZStats(ZScoreArr);
+      setStats(statsArr);
+      console.log(ZScoreArr);
+      console.log(statsArr);
+      // playerStats = ZScoreArr;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const searchNames = async (name) => {
+    //const axios = require('axios');
+
+    const options = {
+      method: 'GET',
+      url: 'https://api-nba-v1.p.rapidapi.com/players',
+      params: { search: name },
+      headers: {
+        'X-RapidAPI-Key': nbaApiKey,
+        'X-RapidAPI-Host': 'api-nba-v1.p.rapidapi.com',
+      },
+    };
+
+    try {
+      const response = await axios.request(options);
+      const playersInfoNew = response.data.response.map((player) => ({
+        id: player.id,
+        name: `${player.firstname} ${player.lastname}`,
+        start: player.nba.start,
+      }));
+
+      setPlayersInfo(playersInfoNew);
+      console.log('PLAYERSINFONEW');
+      console.log(playersInfo);
+      return playersInfoNew;
+      // setShowModal(true);
+    } catch (error) {
+      console.error(error);
+      // setShowModal(false);
+    }
+  };
+
+  const [tableData, setTableData] = useState([
+    ['Click to Add', 'Click to Add'],
+    ['Click to Add', 'Click to Add'],
+    ['Click to Add', 'Click to Add'],
+    ['Click to Add', 'Click to Add'],
+    ['Click to Add', 'Click to Add'],
+  ]);
+  const [leftSums, setLeftSums] = useState(new Array(Zstats.length).fill(0));
+  const [rightSums, setRightSums] = useState(new Array(Zstats.length).fill(0));
+  const [totalValues, setTotalValues] = useState(
+    new Array(Zstats.length).fill(0)
+  );
+
+  const handleCellClick = (row, col) => {
+    const updatedData = [...tableData];
+    const cellContent = [];
+
+    const labels = [
+      'Points',
+      'Rebounds',
+      'Assists',
+      'Blocks',
+      'Steals',
+      'FieldGoal%',
+      'FreeThrow%',
+      'Turnovers',
+      'Total',
+    ];
+
+    cellContent.push(playerName);
+    cellContent.push(<br key="br" />);
+
+    cellContent.push(
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {labels.map((label, i) => (
+          <div key={i} style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.6rem' }}>{label}</span>
+            <span className={`comparison-cell ${getColorClassName(Zstats[i])}`}>
+              {Zstats[i]}
+            </span>
           </div>
-        );
+        ))}
+      </div>
+    );
 
-        updatedData[row][col] = cellContent;
-        setTableData(updatedData);
-      };
+    updatedData[row][col] = cellContent;
+    setTableData(updatedData);
+  };
 
-      const clearTable = () => {
-        setTableData([
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ['Click to Add', 'Click to Add'],
-        ]);
-        setLeftSums(new Array(Zstats.length).fill(''));
-        setRightSums(new Array(Zstats.length).fill(''));
-        setTotalSums(new Array(Zstats.length).fill(''));
-      };
+  const clearTable = () => {
+    setTableData([
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+      ['Click to Add', 'Click to Add'],
+    ]);
+    setLeftSums(new Array(Zstats.length).fill(''));
+    setRightSums(new Array(Zstats.length).fill(''));
+    setTotalSums(new Array(Zstats.length).fill(''));
+  };
 
-      function sumDecimalNumbers(input) {
-        // Regular expression to match decimal numbers
-        const regex = /(-?\d+(\.\d+)?)/g;
+  function sumDecimalNumbers(input) {
+    // Regular expression to match decimal numbers
+    const regex = /(-?\d+(\.\d+)?)/g;
 
-        // Extract all decimal numbers from the input string
-        const numbers = input.match(regex) || [];
+    // Extract all decimal numbers from the input string
+    const numbers = input.match(regex) || [];
 
-        // If there's only one number, return it as is
-        if (numbers.length === 1) {
-            return parseFloat(numbers[0]);
-        }
-
-        // Otherwise, sum up the numbers
-        const sum = numbers.reduce((acc, num) => {
-            // Parse the number as a float and add it to the accumulator
-            acc += parseFloat(num);
-            return acc;
-        }, 0);
-
-        return sum;
+    // If there's only one number, return it as is
+    if (numbers.length === 1) {
+      return parseFloat(numbers[0]);
     }
 
-    // Test cases
-    //console.log(sumDecimalNumbers('1.431.43')); // Output: 2.86
+    // Otherwise, sum up the numbers
+    const sum = numbers.reduce((acc, num) => {
+      // Parse the number as a float and add it to the accumulator
+      acc += parseFloat(num);
+      return acc;
+    }, 0);
 
+    return sum;
+  }
 
-    const calculateValues = () => {
-      const newLeftSums = new Array(Zstats.length).fill(0);
-      const newRightSums = new Array(Zstats.length).fill(0);
-      const newtotalValues = [...totalValues];
+  // Test cases
+  //console.log(sumDecimalNumbers('1.431.43')); // Output: 2.86
 
-      for (let row = 0; row < tableData.length; row++) {
-        const leftValue = tableData[row][0];
-        const rightValue = tableData[row][1];
+  const calculateValues = () => {
+    const newLeftSums = new Array(Zstats.length).fill(0);
+    const newRightSums = new Array(Zstats.length).fill(0);
+    const newtotalValues = [...totalValues];
 
-        if (Array.isArray(leftValue) && leftValue.length > 0 && leftValue[0]) {
-          const zstatsArray = extractZstatsFromCell(leftValue);
-          for (let i = 0; i < zstatsArray.length; i++) {
-            newLeftSums[i] += zstatsArray[i];
-          }
-        }
+    for (let row = 0; row < tableData.length; row++) {
+      const leftValue = tableData[row][0];
+      const rightValue = tableData[row][1];
 
-        if (Array.isArray(rightValue) && rightValue.length > 0 && rightValue[0]) {
-          const zstatsArray = extractZstatsFromCell(rightValue);
-          for (let i = 0; i < zstatsArray.length; i++) {
-            newRightSums[i] += zstatsArray[i];
-          }
-        }
-      }
-
-      for (let i = 0; i < newLeftSums.length; i++) {
-        newtotalValues[i] = parseFloat((newLeftSums[i] - newRightSums[i]).toFixed(2));
-      }
-
-      setLeftSums(newLeftSums);
-      setRightSums(newRightSums);
-      setTotalValues(newtotalValues);
-    };
-
-
-      const tableWidth = window.innerWidth - 128;
-      const cellWidth = tableWidth / 2 - 40;
-
-      const renderSeasonOptions = () => {
-        var startYear = currPlayerStartSeason;
-        const endYear = 2023; // Assuming you want to show until 2023
-        if (startYear < 2015) {
-            startYear = 2015;
-        }
-        const options = [];
-        for (let year = startYear; year <= endYear; year++) {
-          options.push(<option key={year} value={year}>{year}</option>);
-        }
-        return options;
-    };
-
-    const extractZstatsFromCell = (cellContent) => {
-      const zstatsArray = [];
-      if (Array.isArray(cellContent)) {
-        const divContent = cellContent[2].props.children;
-        for (let i = 0; i < divContent.length; i++) {
-          const spanContent = divContent[i].props.children;
-          if (Array.isArray(spanContent)) {
-            zstatsArray.push(parseFloat(spanContent[1].props.children));
-          }
+      if (Array.isArray(leftValue) && leftValue.length > 0 && leftValue[0]) {
+        const zstatsArray = extractZstatsFromCell(leftValue);
+        for (let i = 0; i < zstatsArray.length; i++) {
+          newLeftSums[i] += zstatsArray[i];
         }
       }
-      return zstatsArray;
-    };
 
-    const getColorClassName = (value) => {
-      if (value < 0) {
-        return 'negative';
-      } else if (value > 0) {
-        if (value > 4) {
-          return 'strong-positive';
-        } else {
-          return 'positive';
+      if (Array.isArray(rightValue) && rightValue.length > 0 && rightValue[0]) {
+        const zstatsArray = extractZstatsFromCell(rightValue);
+        for (let i = 0; i < zstatsArray.length; i++) {
+          newRightSums[i] += zstatsArray[i];
         }
-      } else if (value <= 0.5) {
-        return 'neutral';
-      } else {
+      }
+    }
+
+    for (let i = 0; i < newLeftSums.length; i++) {
+      newtotalValues[i] = parseFloat(
+        (newLeftSums[i] - newRightSums[i]).toFixed(2)
+      );
+    }
+
+    setLeftSums(newLeftSums);
+    setRightSums(newRightSums);
+    setTotalValues(newtotalValues);
+  };
+
+  const tableWidth = window.innerWidth - 128;
+  const cellWidth = tableWidth / 2 - 40;
+
+  const renderSeasonOptions = () => {
+    var startYear = currPlayerStartSeason;
+    const endYear = 2023; // Assuming you want to show until 2023
+    if (startYear < 2015) {
+      startYear = 2015;
+    }
+    const options = [];
+    for (let year = startYear; year <= endYear; year++) {
+      options.push(
+        <option key={year} value={year}>
+          {year}
+        </option>
+      );
+    }
+    return options;
+  };
+
+  const extractZstatsFromCell = (cellContent) => {
+    const zstatsArray = [];
+    if (Array.isArray(cellContent)) {
+      const divContent = cellContent[2].props.children;
+      for (let i = 0; i < divContent.length; i++) {
+        const spanContent = divContent[i].props.children;
+        if (Array.isArray(spanContent)) {
+          zstatsArray.push(parseFloat(spanContent[1].props.children));
+        }
+      }
+    }
+    return zstatsArray;
+  };
+
+  const getColorClassName = (value) => {
+    if (value < 0) {
+      return 'negative';
+    } else if (value > 0) {
+      if (value > 4) {
         return 'strong-positive';
+      } else {
+        return 'positive';
       }
+    } else if (value <= 0.5) {
+      return 'neutral';
+    } else {
+      return 'strong-positive';
+    }
+  };
+
+  const handleSaveComparisonData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast({
+        title: 'Authentication Error',
+        description: 'No authentication token found.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    let userId;
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.id;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      toast({
+        title: 'Token Error',
+        description: 'Failed to decode token.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const comparisonData = {
+      userId,
+      comparisonData: {
+        points_comparison1: leftSums[0],
+        points_comparison2: rightSums[0],
+        points_delta: totalValues[0],
+        rebounds_comparison1: leftSums[1],
+        rebounds_comparison2: rightSums[1],
+        rebounds_delta: totalValues[1],
+        assists_comparison1: leftSums[2],
+        assists_comparison2: rightSums[2],
+        assists_delta: totalValues[2],
+        blocks_comparison1: leftSums[3],
+        blocks_comparison2: rightSums[3],
+        blocks_delta: totalValues[3],
+        steals_comparison1: leftSums[4],
+        steals_comparison2: rightSums[4],
+        steals_delta: totalValues[4],
+        fg_percentage_comparison1: leftSums[5],
+        fg_percentage_comparison2: rightSums[5],
+        fg_percentage_delta: totalValues[5],
+        ft_percentage_comparison1: leftSums[6],
+        ft_percentage_comparison2: rightSums[6],
+        ft_percentage_delta: totalValues[6],
+        turnovers_comparison1: leftSums[7],
+        turnovers_comparison2: rightSums[7],
+        turnovers_delta: totalValues[7],
+        total_comparison1: leftSums[8],
+        total_comparison2: rightSums[8],
+        total_delta: totalValues[8],
+      },
     };
 
-    return (
-      <div className="container mx-auto p-4">
-        <input
-          type="text"
-          placeholder="Enter player name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 mr-4 p-2 border rounded"
-        />
-        <button onClick={handleSearch} type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 m-4 ">
-          {players.map((player, index) => (
-            <div
-              key={index}
-              className={`p-4 m-8 shadow-lg rounded-xl cursor-pointer transition duration-300 ${selectedPlayer === player ? 'bg-orange-200' : 'bg-slate-200 hover:shadow-xl hover:bg-orange-100'}`}
-              onClick={() => handlePlayerClick(player)}
-            >
-              <h3 className="font-bold text-xl mb-2 text-center">
-                {player.name}
-              </h3>
-              <div className="relative h-32 mb-2 ">
-                {player.imageUrl ? (
-                  <img
-                    src={player.imageUrl}
-                    alt={player.name}
-                    className="w-full h-full object-contain mx-auto"
-                  />
-                ) : (
-                  <img
-                    src="https://cdn.mos.cms.futurecdn.net/CPAhzgowLi2NtrP9HfVy9Y-1200-80.png"
-                    alt="Image Not Available"
-                    className="w-full h-full object-contain mx-auto rounded-lg"
-                  />
-                )}
-              </div>
-              <div className="flex items-center justify-center space-x-2">
-                <p className="text-lg font-bold">{player.teamName}</p>
+    console.log('Comparison Data:', comparisonData);
+    try {
+      const response = await axios.post(
+        'https://prowling-pooles-backend.onrender.com/api/players_comparisons',
+        comparisonData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      toast({
+        title: 'Comparison Saved',
+        description: 'Comparison data saved successfully.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Failed to save comparison:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save comparison. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <input
+        type="text"
+        placeholder="Enter player name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="flex-1 mr-4 p-2 border rounded"
+      />
+      <button
+        onClick={handleSearch}
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Search
+      </button>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 m-4 ">
+        {players.map((player, index) => (
+          <div
+            key={index}
+            className={`p-4 m-8 shadow-lg rounded-xl cursor-pointer transition duration-300 ${
+              selectedPlayer === player
+                ? 'bg-orange-200'
+                : 'bg-slate-200 hover:shadow-xl hover:bg-orange-100'
+            }`}
+            onClick={() => handlePlayerClick(player)}
+          >
+            <h3 className="font-bold text-xl mb-2 text-center">
+              {player.name}
+            </h3>
+            <div className="relative h-32 mb-2 ">
+              {player.imageUrl ? (
                 <img
-                  src={player.teamImage}
-                  alt={player.teamName + ' logo'}
-                  className="w-12 h-12 object-cover"
+                  src={player.imageUrl}
+                  alt={player.name}
+                  className="w-full h-full object-contain mx-auto"
                 />
-              </div>
+              ) : (
+                <img
+                  src="https://cdn.mos.cms.futurecdn.net/CPAhzgowLi2NtrP9HfVy9Y-1200-80.png"
+                  alt="Image Not Available"
+                  className="w-full h-full object-contain mx-auto rounded-lg"
+                />
+              )}
             </div>
-          ))}
-        </div>
-        {showSeason && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="close" onClick={() => { setShowSeason(false); setShowSeason(false); setGraphDone(false); }}>&times;</span>
-              <h2>Seasons</h2>
-              <select value={season} onChange={handleSeasonChange} className="bg-white-500 text-black px-4 py-2 rounded">
-                {renderSeasonOptions()}
-              </select>
-              <button onClick={() => { handleStats(); setShowStats(true); setGraphDone(true); }} type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                Get stats
-              </button>
+            <div className="flex items-center justify-center space-x-2">
+              <p className="text-lg font-bold">{player.teamName}</p>
+              <img
+                src={player.teamImage}
+                alt={player.teamName + ' logo'}
+                className="w-12 h-12 object-cover"
+              />
             </div>
           </div>
-        )}
-        {showStats && (
-  <div className="stats-container">
-    <h2 className="stats-title">Average Stats and ZStats</h2>
-    <table className="stats-table">
-      <thead>
-        <tr>
-          <th>Stat</th>
-          <th>Value</th>
-          <th>Z-Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        {stats.map(([key, value], index) => (
-          <tr key={index}>
-            <td>{key}</td>
-            <td>{value}</td>
-            <td className="z-score-cell">
+        ))}
+      </div>
+      {showSeason && (
+        <div className="modal">
+          <div className="modal-content">
+            <span
+              className="close"
+              onClick={() => {
+                setShowSeason(false);
+                setShowSeason(false);
+                setGraphDone(false);
+              }}
+            >
+              &times;
+            </span>
+            <h2>Seasons</h2>
+            <select
+              value={season}
+              onChange={handleSeasonChange}
+              className="bg-white-500 text-black px-4 py-2 rounded"
+            >
+              {renderSeasonOptions()}
+            </select>
+            <button
+              onClick={() => {
+                handleStats();
+                setShowStats(true);
+                setGraphDone(true);
+              }}
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Get stats
+            </button>
+          </div>
+        </div>
+      )}
+      {showStats && (
+        <div className="stats-container">
+          <h2 className="stats-title">Average Stats and ZStats</h2>
+          <table className="stats-table">
+            <thead>
+              <tr>
+                <th>Stat</th>
+                <th>Value</th>
+                <th>Z-Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.map(([key, value], index) => (
+                <tr key={index}>
+                  <td>{key}</td>
+                  <td>{value}</td>
+                  <td className="z-score-cell">
+                    <span
+                      style={{
+                        backgroundColor:
+                          Zstats[index] < 0
+                            ? `hsl(0, 100%, ${
+                                50 - Math.abs(Zstats[index] * 20)
+                              }%)`
+                            : Zstats[index] > 0
+                            ? `hsl(120, 100%, ${
+                                50 - Math.abs(Math.min(Zstats[index], 4) * 10)
+                              }%)`
+                            : Zstats[index] <= 0.5
+                            ? 'lightgreen'
+                            : 'green',
+                      }}
+                    >
+                      {Zstats[index]}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="comparison-container">
+        <div className="comparison-table">
+          <table className="comparison-table-inner">
+            <thead>
+              <tr>
+                <th>Comparison 1</th>
+                <th>Comparison 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, colIndex) => (
+                    <td
+                      key={`${rowIndex}-${colIndex}`}
+                      onClick={() => handleCellClick(rowIndex, colIndex)}
+                      className="comparison-cell"
+                    >
+                      {Array.isArray(cell) ? cell : cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="comparison-buttons">
+          <button onClick={clearTable} className="clear-button">
+            Clear
+          </button>
+          <button onClick={calculateValues} className="calculate-button">
+            Calculate
+          </button>
+          <button
+            onClick={handleSaveComparisonData}
+            className="save-button bg-amber-500 text-white px-4 py-2 rounded"
+          >
+            Save All
+          </button>
+        </div>
+        <div className="comparison-totals">
+          <div className="totals-container">
+            <ul className="legend">
+              <li className="item0">Stats</li>
+              <li className="item1">Points</li>
+              <li className="item2">Rebounds</li>
+              <li className="item3">Assists</li>
+              <li className="item4">Blocks</li>
+              <li className="item5">Steals</li>
+              <li className="item6">FG%</li>
+              <li className="item7">FT%</li>
+              <li className="item8">Turnovers</li>
+              <li className="item9">Total</li>
+            </ul>
+          </div>
+          <div className="total-row">
+            <span className="total-label">Comparison 1:</span>
+            {leftSums.map((value, index) => (
               <span
+                key={index}
+                className={`total-value ${getColorClassName(value)}`}
                 style={{
                   backgroundColor:
-                    Zstats[index] < 0
-                      ? `hsl(0, 100%, ${50 - Math.abs(Zstats[index] * 20)}%)`
-                      : Zstats[index] > 0
-                      ? `hsl(120, 100%, ${50 - Math.abs(Math.min(Zstats[index], 4) * 10)}%)`
-                      : Zstats[index] <= 0.5
+                    value < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+                      : value > 0
+                      ? `hsl(120, 100%, ${
+                          50 - Math.abs(Math.min(value, 4) * 10)
+                        }%)`
+                      : value <= 0.5
                       ? 'lightgreen'
                       : 'green',
                 }}
               >
-                {Zstats[index]}
+                {value}
               </span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
-
-<div className="comparison-container">
-<div className="comparison-table">
-  <table className="comparison-table-inner">
-    <thead>
-
-      <tr>
-        <th>Comparison 1</th>
-        <th>Comparison 2</th>
-      </tr>
-    </thead>
-    <tbody>
-      {tableData.map((row, rowIndex) => (
-        <tr key={rowIndex}>
-          {row.map((cell, colIndex) => (
-            <td
-              key={`${rowIndex}-${colIndex}`}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
-              className="comparison-cell"
-            >
-              {Array.isArray(cell) ? cell : cell}
-            </td>
-          ))}
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-<div className="comparison-buttons">
-  <button onClick={clearTable} className="clear-button">
-    Clear
-  </button>
-  <button onClick={calculateValues} className="calculate-button">
-    Calculate
-  </button>
-</div>
-<div className="comparison-totals">
-  <div className="totals-container">
-    <ul className="legend">
-    <li className="item0">Stats</li>
-  <li className="item1">Points</li>
-  <li className="item2">Rebounds</li>
-  <li className="item3">Assists</li>
-  <li className="item4">Blocks</li>
-  <li className="item5">Steals</li>
-  <li className="item6">FG%</li>
-  <li className="item7">FT%</li>
-  <li className="item8">Turnovers</li>
-  <li className="item9">Total</li>
-
-    </ul>
+            ))}
+          </div>
+          <div className="total-row">
+            <span className="total-label">Comparison 2:</span>
+            {rightSums.map((value, index) => (
+              <span
+                key={index}
+                className={`total-value ${getColorClassName(value)}`}
+                style={{
+                  backgroundColor:
+                    value < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+                      : value > 0
+                      ? `hsl(120, 100%, ${
+                          50 - Math.abs(Math.min(value, 4) * 10)
+                        }%)`
+                      : value <= 0.5
+                      ? 'lightgreen'
+                      : 'green',
+                }}
+              >
+                {value}
+              </span>
+            ))}
+          </div>
+          <div className="total-row">
+            <span className="total-label">ΔTotal</span>
+            {totalValues.map((value, index) => (
+              <span
+                key={index}
+                className={`total-value ${getColorClassName(value)}`}
+                style={{
+                  backgroundColor:
+                    value < 0
+                      ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
+                      : value > 0
+                      ? `hsl(120, 100%, ${
+                          50 - Math.abs(Math.min(value, 4) * 10)
+                        }%)`
+                      : value <= 0.5
+                      ? 'lightgreen'
+                      : 'green',
+                }}
+              >
+                {value}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
-  <div className="total-row">
-    <span className="total-label">Comparison 1:</span>
-    {leftSums.map((value, index) => (
-      <span
-        key={index}
-        className={`total-value ${getColorClassName(value)}`}
-        style={{
-          backgroundColor:
-            value < 0
-              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
-              : value > 0
-              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
-              : value <= 0.5
-              ? 'lightgreen'
-              : 'green',
-        }}
-      >
-        {value}
-      </span>
-    ))}
-  </div>
-  <div className="total-row">
-    <span className="total-label">Comparison 2:</span>
-    {rightSums.map((value, index) => (
-      <span
-        key={index}
-        className={`total-value ${getColorClassName(value)}`}
-        style={{
-          backgroundColor:
-            value < 0
-              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
-              : value > 0
-              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
-              : value <= 0.5
-              ? 'lightgreen'
-              : 'green',
-        }}
-      >
-        {value}
-      </span>
-    ))}
-  </div>
-  <div className="total-row">
-    <span className="total-label">ΔTotal</span>
-    {totalValues.map((value, index) => (
-      <span
-        key={index}
-        className={`total-value ${getColorClassName(value)}`}
-        style={{
-          backgroundColor:
-            value < 0
-              ? `hsl(0, 100%, ${50 - Math.abs(value * 20)}%)`
-              : value > 0
-              ? `hsl(120, 100%, ${50 - Math.abs(Math.min(value, 4) * 10)}%)`
-              : value <= 0.5
-              ? 'lightgreen'
-              : 'green',
-        }}
-      >
-        {value}
-      </span>
-    ))}
-  </div>
-</div>
-</div>
-</div>
-);
+  );
 };
 
 export default Feature3Component;
-
