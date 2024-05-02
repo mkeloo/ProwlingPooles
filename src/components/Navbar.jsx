@@ -35,21 +35,23 @@ const Navbar = () => {
         <div className="relative flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-1 flex items-center justify-start">
-            <div className="flex-shrink-0 flex items-center mx-2">
-              <img
-                className="h-[74px] w-auto ml-8"
-                src={logo}
-                alt="Prowling Pooles"
-              />
-              <div className="mx-4">
-                <span className="block font-bold text-2xl leading-none bg-gradient-to-r from-orange-400 to-yellow-600 text-transparent bg-clip-text">
-                  Prowling
-                </span>
-                <span className="block font-bold text-2xl leading-none bg-gradient-to-r from-orange-400 to-yellow-600 text-transparent bg-clip-text">
-                  Pooles
-                </span>
+            <Link to="/">
+              <div className="flex-shrink-0 flex items-center mx-2">
+                <img
+                  className="h-[74px] w-auto ml-8"
+                  src={logo}
+                  alt="Prowling Pooles"
+                />
+                <div className="mx-4">
+                  <span className="block font-bold text-2xl leading-none bg-gradient-to-r from-orange-400 to-yellow-600 text-transparent bg-clip-text">
+                    Prowling
+                  </span>
+                  <span className="block font-bold text-2xl leading-none bg-gradient-to-r from-orange-400 to-yellow-600 text-transparent bg-clip-text">
+                    Pooles
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Menu items */}
