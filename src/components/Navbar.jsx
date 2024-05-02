@@ -83,7 +83,7 @@ const Navbar = () => {
                 to="/feature5"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Feature 5
+                Team Peformance Analyzer
               </Link>
               <Link
                 to="/registration"
