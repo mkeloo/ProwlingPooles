@@ -3,7 +3,7 @@ import Feature5Component from '../components/Feature5Component';
 
 const Feature5 = () => {
   return (
-    <div style={{ backgroundColor: 'black', color: 'orange', minHeight: '100vh', width: '100%', alignItems: 'center' }}>
+    <div style={{ minHeight: '100vh', width: '100%', alignItems: 'center' }}>
       <h1 style={{ fontSize: '3rem', fontWeight: 'bold', textAlign: 'center', width: '100%' }}>Team Comparison</h1>
       <Feature5Component />
     </div>

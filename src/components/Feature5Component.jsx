@@ -226,11 +226,11 @@ const Feature5Component = () => {
 
 
     return (
-        <Box bg="black">
+        <Box>
             <Flex gap="20px" mb="20px" align="center">
-            <Box align="center" color="orange">
+            <Box align="center">
             Team 1
-                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" bg="black" style={{ cursor: 'pointer' }}>
+                <Select name="team1" id="team1" className="form-control" onChange={handleSelectChange1} align="center" style={{ cursor: 'pointer' }}>
                     <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -264,9 +264,9 @@ const Feature5Component = () => {
                     <option value="41">Washington Wizards</option>
                 </Select>
             </Box>
-            <Box align="center" color="orange">
+            <Box align="center">
             Team 2
-                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" bg="black" style={{ cursor: 'pointer' }}>
+                <Select name="team2" id="team2" className="form-control" onChange={handleSelectChange2} align="center" style={{ cursor: 'pointer' }}>
                 <option value="null">Please Select A Team</option>
                     <option value="1">Atlanta Hawks</option>
                     <option value="2">Boston Celtics</option>
@@ -312,7 +312,7 @@ const Feature5Component = () => {
             {/* <p>Selected Team ID: {searchTerm}</p> */}
             <Flex direction={["column", "row"]} gap="20px">
                 {showStats1 && (
-                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="black" color="orange">
+                    <Box flex="1" boxShadow="md" p="6" rounded="md">
                         {/* <Box mb="4">
                             <Text fontSize="lg" fontWeight="bold">Team 1 Leaders</Text>
                             <Text>Points Leader: {team1Leader.pointsLeader} ({team1Leader.ppg} PPG)</Text>
@@ -338,7 +338,7 @@ const Feature5Component = () => {
                     </Box>
                 )}
                 {showStats2 && (
-                    <Box flex="1" boxShadow="md" p="6" rounded="md" bg="black" color="orange">
+                    <Box flex="1" boxShadow="md" p="6" rounded="md">
                         <Table size="sm">
                             <Thead>
                                 <Tr><Th>Stat</Th><Th>Value</Th></Tr>
