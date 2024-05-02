@@ -11,14 +11,19 @@ import {
   Td,
   Box,
   Text,
-  Image,
+  //   Image,
+  useToast,
+  Button,
 } from '@chakra-ui/react';
 import teamData from '../utils/leader';
 import playerData from '../utils/players';
 import { FaStar } from 'react-icons/fa';
+import { jwtDecode } from 'jwt-decode';
 
 const Feature5Component = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const toast = useToast();
+
   const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,7 +62,9 @@ const Feature5Component = () => {
     ].teams.find((t) => t.id === parseInt(selectedValue));
 
     if (team) {
+      console.log('Selected Team ID:', selectedValue);
       setTeam1Info({
+        id: selectedValue,
         name: team.name,
         imageUrl: getTeamImageUrl(selectedValue),
       });
@@ -173,6 +180,7 @@ const Feature5Component = () => {
 
     if (team) {
       setTeam2Info({
+        id: selectedValue,
         name: team.name,
         imageUrl: getTeamImageUrl(selectedValue),
       });
@@ -302,6 +310,143 @@ const Feature5Component = () => {
     return null;
   };
 
+  const saveComparison = async () => {
+    const token = localStorage.getItem('token');
+    const decoded = jwtDecode(token);
+    const userId = decoded.id;
+
+    if (!token) {
+      toast({
+        title: 'Authentication Error',
+        description: 'No authentication token found.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      toast({
+        title: 'Token Error',
+        description: 'Failed to decode token.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const payload = {
+      userId,
+      team1_id: team1Info.id,
+      team1_name: team1Info.name,
+      team1_image_url: team1Info.imageUrl,
+      team1_points_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Points')[1]
+      ),
+      team1_rebounds_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Rebounds')[1]
+      ),
+      team1_assists_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Assists')[1]
+      ),
+      team1_blocks_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Blocks')[1]
+      ),
+      team1_steals_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Steals')[1]
+      ),
+      team1_plus_minus: parseFloat(
+        stats1.find(([key]) => key === 'Plus Minus')[1]
+      ),
+      team1_field_goal_percentage: parseFloat(
+        stats1.find(([key]) => key === 'Field Goal %')[1]
+      ),
+      team1_free_throw_percentage: parseFloat(
+        stats1.find(([key]) => key === 'Free Throw %')[1]
+      ),
+      team1_turnovers_per_game: parseFloat(
+        stats1.find(([key]) => key === 'Turnovers')[1]
+      ),
+      team1_points_leader: team1Leader.pointsLeader,
+      team1_ppg: team1Leader.ppg,
+      team1_assist_leader: team1Leader.assistLeader,
+      team1_apg: team1Leader.apg,
+      team1_rebound_leader: team1Leader.reboundLeader,
+      team1_rpg: team1Leader.rpg,
+      team2_id: team2Info.id,
+      team2_name: team2Info.name,
+      team2_image_url: team2Info.imageUrl,
+      team2_points_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Points')[1]
+      ),
+      team2_rebounds_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Rebounds')[1]
+      ),
+      team2_assists_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Assists')[1]
+      ),
+      team2_blocks_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Blocks')[1]
+      ),
+      team2_steals_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Steals')[1]
+      ),
+      team2_plus_minus: parseFloat(
+        stats2.find(([key]) => key === 'Plus Minus')[1]
+      ),
+      team2_field_goal_percentage: parseFloat(
+        stats2.find(([key]) => key === 'Field Goal %')[1]
+      ),
+      team2_free_throw_percentage: parseFloat(
+        stats2.find(([key]) => key === 'Free Throw %')[1]
+      ),
+      team2_turnovers_per_game: parseFloat(
+        stats2.find(([key]) => key === 'Turnovers')[1]
+      ),
+      team2_points_leader: team2Leader.pointsLeader,
+      team2_ppg: team2Leader.ppg,
+      team2_assist_leader: team2Leader.assistLeader,
+      team2_apg: team2Leader.apg,
+      team2_rebound_leader: team2Leader.reboundLeader,
+      team2_rpg: team2Leader.rpg,
+    };
+
+    console.log('Comparison payload:', payload);
+
+    try {
+      const response = await axios.post(
+        'https://prowling-pooles-backend.onrender.com/api/team_comparisons',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      toast({
+        title: 'Comparison Saved',
+        description: 'Team comparison saved successfully.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Failed to save comparison:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save comparison. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Box className="bg-gray-50 p-4 rounded-lg shadow">
       <Flex
@@ -336,14 +481,17 @@ const Feature5Component = () => {
             {renderOptions()}
           </Select>
         </Box>
-        <FaStar
+        {/* <FaStar
           color={isHovered ? 'blue' : 'orange'}
           size="60px"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={{ cursor: 'pointer' }}
           className="transition-colors duration-300"
-        />
+        /> */}
+        <Button onClick={saveComparison} colorScheme="blue">
+          Save Comparison
+        </Button>
       </Flex>
 
       <Flex direction={['column', 'row']} gap="5" className="mt-4">

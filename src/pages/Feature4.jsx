@@ -143,7 +143,6 @@ const Feature4 = () => {
         return;
       }
 
-      // Retrieve the correct image URL from newsSources based on the article's source
       const image_url = getSourceImage(article.source);
 
       console.log('Saving article with ID:', article.article_id);
@@ -155,7 +154,7 @@ const Feature4 = () => {
           title: article.title,
           source: article.source,
           url: article.url,
-          image_url: image_url, // Use the retrieved image URL
+          image_url: image_url,
         },
         {
           headers: {
