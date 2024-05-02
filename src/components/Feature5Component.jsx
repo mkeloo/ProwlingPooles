@@ -15,8 +15,8 @@ import {
   useToast,
   Button,
 } from '@chakra-ui/react';
-import teamData from '../utils/leader';
-import playerData from '../utils/players';
+import teamData from '../utils/leader'; //import leader data from leader.js
+import playerData from '../utils/players'; //import player data for team dropdown from leader.js
 import { FaStar } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 
