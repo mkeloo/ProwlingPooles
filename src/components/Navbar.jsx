@@ -120,7 +120,7 @@ const Navbar = () => {
             <MenuList>
               <MenuItem
                 as={Link}
-                to="/login
+                to="/dashboard
               "
               >
                 Dashboard
