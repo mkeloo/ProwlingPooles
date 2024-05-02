@@ -118,6 +118,9 @@ const Navbar = () => {
               Menu
             </MenuButton>
             <MenuList>
+              <MenuItem as={Link} to="/login">
+                Login
+              </MenuItem>
               <MenuItem
                 as={Link}
                 to="/dashboard

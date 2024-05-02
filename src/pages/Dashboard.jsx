@@ -15,6 +15,7 @@ import {
   ModalOverlay,
   ModalFooter,
   Text,
+  Textarea,
   Table,
   Thead,
   Tbody,
@@ -22,6 +23,9 @@ import {
   Th,
   Td,
   useDisclosure,
+  SimpleGrid,
+  Input,
+  useToast,
 } from '@chakra-ui/react';
 import PlayerStatsGraph from '../components/PlayerGraphComponent';
 
@@ -37,7 +41,14 @@ function Dashboard() {
   const [selectedItem, setSelectedPlayer] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
+  const toast = useToast();
   const [modalContentType, setModalContentType] = useState(null);
+  const [isAddNoteClicked, setIsAddNoteClicked] = useState(false);
+
+  const [notes, setNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,11 +64,126 @@ function Dashboard() {
       fetchPlayerStatistics(token);
       fetchPlayerComparisons(token);
       fetchTeamComparisons(token);
+      fetchNotes(token);
     } catch (error) {
       console.error('Token decoding error or token expired:', error);
       logout();
     }
   }, [navigate]);
+
+  const fetchNotes = async (token) => {
+    try {
+      const response = await axios.get(
+        'https://prowling-pooles-backend.onrender.com/api/notes',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNotes(response.data);
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+      if (error.response && error.response.status === 401) {
+        logout();
+      }
+    }
+  };
+
+  const handleNoteChange = (e, field) => {
+    field === 'title'
+      ? setNoteTitle(e.target.value)
+      : setNoteContent(e.target.value);
+  };
+
+  const saveNote = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast({
+        title: 'Authentication Error',
+        description: 'You must be logged in to save notes.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+      navigate('/login');
+      return;
+    }
+    const headers = { Authorization: `Bearer ${token}` };
+    const noteData = { title: noteTitle, content: noteContent };
+
+    try {
+      if (selectedNote) {
+        await axios.put(
+          `https://prowling-pooles-backend.onrender.com/api/notes/${selectedNote.id}`,
+          noteData,
+          { headers }
+        );
+        toast({
+          title: 'Note Updated',
+          description: 'Your note has been updated successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        await axios.post(
+          'https://prowling-pooles-backend.onrender.com/api/notes',
+          noteData,
+          { headers }
+        );
+        toast({
+          title: 'Note Created',
+          description: 'Your new note has been created successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+      fetchNotes(token);
+      onClose();
+      clearForm();
+    } catch (error) {
+      console.error('Failed to save or update note:', error);
+      toast({
+        title: 'Error',
+        description: 'There was an error saving the note.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const clearForm = () => {
+    setNoteTitle('');
+    setNoteContent('');
+    setSelectedNote(null);
+  };
+
+  const editNote = (note) => {
+    setSelectedNote(note);
+    setNoteTitle(note.title);
+    setNoteContent(note.content);
+    onOpen();
+  };
+
+  const deleteNote = async (noteId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    try {
+      await axios.delete(
+        `https://prowling-pooles-backend.onrender.com/api/notes/${noteId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchNotes(token);
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+    }
+  };
 
   const fetchFavorites = async (token) => {
     try {
@@ -792,7 +918,85 @@ function Dashboard() {
         <div className="flex items-center justify-center m-6">
           <h1 className="text-4xl font-bold mb-4">NBA Saved Stats</h1>
         </div>
+        <Flex justifyContent="space-between" alignItems="center" mb={4}>
+          <Button onClick={onOpen} colorScheme="blue">
+            Add Note
+          </Button>
+        </Flex>
+        {/* <SimpleGrid columns={3} spacing={4}>
+          {notes.map((note) => (
+            <Box key={note.id} p={4} shadow="md" borderWidth="1px" rounded="md">
+              <Text
+                fontWeight="bold"
+                mb={2}
+                onClick={() => editNote(note)}
+                cursor="pointer"
+              >
+                {note.title}
+              </Text>
+              <Text noOfLines={1}>{note.content}</Text>
+              <Button
+                size="sm"
+                colorScheme="red"
+                onClick={() => deleteNote(note.id)}
+              >
+                Delete
+              </Button>
+            </Box>
+          ))}
+        </SimpleGrid> */}
+        <div className="mb-8 bg-white rounded-3xl p-6">
+          <h2 className="text-3xl mb-2 font-extrabold font-monospace">Notes</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                className="p-4 shadow-md border-2 border-gray-300 rounded-md"
+              >
+                <h3
+                  className="font-bold mb-2 cursor-pointer"
+                  onClick={() => editNote(note)}
+                >
+                  {note.title}
+                </h3>
+                <p className="truncate">{note.content}</p>
+                <button
+                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md"
+                  onClick={() => deleteNote(note.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
 
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{selectedNote ? 'Edit Note' : 'Add Note'}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6}>
+              <Input
+                placeholder="Title"
+                value={noteTitle}
+                onChange={(e) => handleNoteChange(e, 'title')}
+                mb={3}
+              />
+              <Textarea
+                placeholder="Write your note here..."
+                value={noteContent}
+                onChange={(e) => handleNoteChange(e, 'content')}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={saveNote}>
+                Save
+              </Button>
+              <Button onClick={onClose}>Cancel</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
         {/* Display Favorites */}
         <div className="mb-8 bg-white rounded-3xl p-6">
           <h2 className="text-3xl mb-2 font-extrabold font-monospace">
