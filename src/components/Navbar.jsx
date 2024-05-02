@@ -59,25 +59,25 @@ const Navbar = () => {
                 to="/feature1"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Feature 1
+                Present Season Player Statistics
               </Link>
               <Link
                 to="/feature2"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Feature 2
+                Player Performance Chart
               </Link>
               <Link
                 to="/feature3"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Feature 3
+                Trade Analyzer
               </Link>
               <Link
                 to="/feature4"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
               >
-                Feature 4
+                NBA News
               </Link>
               <Link
                 to="/feature5"
