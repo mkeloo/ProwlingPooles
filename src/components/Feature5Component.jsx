@@ -11,6 +11,7 @@ import {
   Td,
   Box,
   Text,
+  Image,
 } from '@chakra-ui/react';
 import teamData from '../utils/leader';
 import playerData from '../utils/players';
@@ -20,6 +21,9 @@ const Feature5Component = () => {
   const [isHovered, setIsHovered] = useState(false);
   const nbaApiKey = import.meta.env.VITE_REACT_APP_API_KEY;
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [team1Info, setTeam1Info] = useState({ name: '', imageUrl: '' });
+  const [team2Info, setTeam2Info] = useState({ name: '', imageUrl: '' });
 
   const [stats1, setStats1] = useState([]);
   const [showStats1, setShowStats1] = useState(false);
@@ -40,8 +44,25 @@ const Feature5Component = () => {
       setShowStats1(false);
       setStats1([]);
       setLeader1([]);
+      setTeam1Info({ name: '', imageUrl: '' }); // Reset team info
       return;
     }
+
+    const team = playerData.NBA[
+      Object.keys(playerData.NBA).find((division) =>
+        playerData.NBA[division].teams.some(
+          (t) => t.id === parseInt(selectedValue)
+        )
+      )
+    ].teams.find((t) => t.id === parseInt(selectedValue));
+
+    if (team) {
+      setTeam1Info({
+        name: team.name,
+        imageUrl: getTeamImageUrl(selectedValue),
+      });
+    }
+
     const teamLeaderData = teamData.teams.find(
       (team) => team.id === parseInt(selectedValue)
     );
@@ -137,8 +158,26 @@ const Feature5Component = () => {
       setShowStats2(false);
       setStats2([]);
       setLeader2([]);
+      setTeam2Info({ name: '', imageUrl: '' }); // Reset team info
+
       return;
     }
+
+    const team = playerData.NBA[
+      Object.keys(playerData.NBA).find((division) =>
+        playerData.NBA[division].teams.some(
+          (t) => t.id === parseInt(selectedValue)
+        )
+      )
+    ].teams.find((t) => t.id === parseInt(selectedValue));
+
+    if (team) {
+      setTeam2Info({
+        name: team.name,
+        imageUrl: getTeamImageUrl(selectedValue),
+      });
+    }
+
     const teamLeaderData = teamData.teams.find(
       (team) => team.id === parseInt(selectedValue)
     );
@@ -242,6 +281,27 @@ const Feature5Component = () => {
     );
   };
 
+  const getTeamImageUrl = (teamId) => {
+    const divisions = [
+      'Atlantic',
+      'Central',
+      'Southeast',
+      'Northwest',
+      'Pacific',
+      'Southwest',
+    ];
+
+    for (let division of divisions) {
+      const team = playerData.NBA[division].teams.find(
+        (team) => team.id === parseInt(teamId)
+      );
+      if (team) {
+        return team.image_url;
+      }
+    }
+    return null;
+  };
+
   return (
     <Box className="bg-gray-50 p-4 rounded-lg shadow">
       <Flex
@@ -289,6 +349,20 @@ const Feature5Component = () => {
       <Flex direction={['column', 'row']} gap="5" className="mt-4">
         {showStats1 && (
           <Box flex="1" boxShadow="md" p="6" rounded="md" className="bg-white">
+            {/* Display the team's logo centered and larger */}
+            {team1Info.imageUrl && (
+              <div className="flex flex-col items-center my-4">
+                <h2 className="text-3xl font-bold mb-4">{team1Info.name}</h2>
+                <div className="relative">
+                  <img
+                    src={team1Info.imageUrl}
+                    alt={`${team1Info.name} logo`}
+                    className="w-48 h-48 object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            {/* Statistics Table */}
             <Table size="sm">
               <Thead>
                 <Tr>
@@ -361,6 +435,19 @@ const Feature5Component = () => {
         )}
         {showStats2 && (
           <Box flex="1" boxShadow="md" p="6" rounded="md" className="bg-white">
+            {/* Display the team's logo centered and larger */}
+            {team2Info.imageUrl && (
+              <div className="flex flex-col items-center my-4">
+                <h2 className="text-3xl font-bold mb-4">{team2Info.name}</h2>
+                <div className="relative">
+                  <img
+                    src={team2Info.imageUrl}
+                    alt={`${team2Info.name} logo`}
+                    className="w-48 h-48 object-cover"
+                  />
+                </div>
+              </div>
+            )}
             <Table size="sm">
               <Thead>
                 <Tr>
