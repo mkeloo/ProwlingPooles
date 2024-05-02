@@ -1,8 +1,15 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
+import React from 'react';
 import logo from '../assets/logo2x.png';
-import { FaUser } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaUser, FaBars } from 'react-icons/fa';
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Button,
+  useColorModeValue,
+} from '@chakra-ui/react';
 
 const Navbar = () => {
   // const navigate = useNavigate();
@@ -23,7 +30,7 @@ const Navbar = () => {
   // }, [navigate]);
 
   return (
-    <nav className="bg-black text-white">
+    <nav className="bg-black ">
       <div className="max-w-7xl mx-auto ">
         <div className="relative flex items-center justify-between h-20">
           {/* Logo */}
@@ -46,9 +53,8 @@ const Navbar = () => {
           </div>
 
           {/* Menu items */}
-          <div className="sm:block sm:ml-6">
+          {/* <div className="sm:block sm:ml-6">
             <div className="flex space-x-4">
-              {/* Links */}
               <Link
                 to="/"
                 className="text-white px-3 py-2 rounded-md text-sm font-medium"
@@ -92,7 +98,54 @@ const Navbar = () => {
                 <FaUser className="text-2xl" />
               </Link>
             </div>
-          </div>
+          </div> */}
+
+          {/* Menu items - Responsive Menu */}
+
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<FaBars />}
+              aria-label="Options"
+              variant="outline"
+              size="lg"
+              borderColor="transparent"
+              color="white"
+              _hover={{ bg: useColorModeValue('gray.700', 'gray.600') }}
+            >
+              Menu
+            </MenuButton>
+            <MenuList>
+              <MenuItem
+                as={Link}
+                to="/login
+              "
+              >
+                Dashboard
+              </MenuItem>
+              <MenuItem as={Link} to="/feature1">
+                Player Lookup
+              </MenuItem>
+              <MenuItem as={Link} to="/feature2">
+                Player Performance Chart
+              </MenuItem>
+              <MenuItem as={Link} to="/feature3">
+                Trade Analyzer
+              </MenuItem>
+              <MenuItem as={Link} to="/feature4">
+                NBA News
+              </MenuItem>
+              <MenuItem as={Link} to="/feature5">
+                Team Performance Analyzer
+              </MenuItem>
+              {/* <MenuItem as={Link} to="/login">
+                <Flex align="center">
+                  <FaUser mr={2} />
+                  <Text>Login</Text>
+                </Flex>
+              </MenuItem> */}
+            </MenuList>
+          </Menu>
         </div>
       </div>
     </nav>
