@@ -43,8 +43,8 @@ function Dashboard() {
   const navigate = useNavigate();
   const toast = useToast();
   const [modalContentType, setModalContentType] = useState(null);
-  const [isAddNoteClicked, setIsAddNoteClicked] = useState(false);
-
+  const [isAddNoteModalOpen, setIsAddNoteModalOpen] = useState(false);
+  const [isItemSelectedModalOpen, setIsItemSelectedModalOpen] = useState(false);
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [noteTitle, setNoteTitle] = useState('');
@@ -70,6 +70,22 @@ function Dashboard() {
       logout();
     }
   }, [navigate]);
+
+  const onOpenAddNoteModal = () => {
+    setIsAddNoteModalOpen(true);
+  };
+
+  const onCloseAddNoteModal = () => {
+    setIsAddNoteModalOpen(false);
+  };
+
+  const onOpenItemSelectedModal = () => {
+    setIsItemSelectedModalOpen(true);
+  };
+
+  const onCloseItemSelectedModal = () => {
+    setIsItemSelectedModalOpen(false);
+  };
 
   const fetchNotes = async (token) => {
     try {
@@ -919,7 +935,7 @@ function Dashboard() {
           <h1 className="text-4xl font-bold mb-4">NBA Saved Stats</h1>
         </div>
         <Flex justifyContent="space-between" alignItems="center" mb={4}>
-          <Button onClick={onOpen} colorScheme="blue">
+          <Button onClick={onOpenAddNoteModal} colorScheme="blue">
             Add Note
           </Button>
         </Flex>
@@ -971,7 +987,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isAddNoteModalOpen} onClose={onCloseAddNoteModal}>
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>{selectedNote ? 'Edit Note' : 'Add Note'}</ModalHeader>
@@ -993,7 +1009,7 @@ function Dashboard() {
               <Button colorScheme="blue" mr={3} onClick={saveNote}>
                 Save
               </Button>
-              <Button onClick={onClose}>Cancel</Button>
+              <Button onClick={onCloseAddNoteModal}>Cancel</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
