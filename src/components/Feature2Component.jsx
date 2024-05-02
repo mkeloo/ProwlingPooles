@@ -34,8 +34,6 @@ const Feature2Component = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         const searchLower = searchTerm.trim().toLowerCase();
-        // if(!searchTerm) return;
-        // const data = searchNames(searchTerm);
         setShowModal(false);
         setShowStats(false);
         setShowSeason(false);
@@ -70,30 +68,7 @@ const Feature2Component = () => {
 
         setPlayers(allPlayers);
     };
-    // const PlayerStatsGraph = ({ statsData }) => {
-    //     console.log("ENTERING PLAYER STAT GRAPH");
-    //     setGraphDone(false);
-    //     const formattedData = statsData.map((item, index) => ({
-    //         gameNumber: index + 1,
-    //         points: item.points
-    //       }));
-    //       setGraphDone(true);
-    //       return (
-    //         <LineChart
-    //             width={800}
-    //             height={400}
-    //             data={formattedData}
-    //             margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-    //             >
-    //             <CartesianGrid strokeDasharray="3 3" />
-    //             <XAxis dataKey="gameNumber" />
-    //             <YAxis />
-    //             <Tooltip />
-    //             <Legend />
-    //             <Line type="monotone" dataKey="points" stroke="#8884d8" />
-    //         </LineChart>
-    //       );
-    //     };
+
     const handleStats = async () => {
         const response = getDataForPlayerAndSeason(currPlayer, season);
     }
@@ -101,30 +76,20 @@ const Feature2Component = () => {
         setSelectedPlayer(player === selectedPlayer ? null : player);
         const firstName = player.name.split(" ")[0];
         const lastName = player.name.split(" ").pop();
-        console.log(player.name);
-        console.log('Clicked on player:', player.name);
-        console.log('With last name:', lastName);
         var selectedID = "";
         var startSeason = "";
         const playersInfoCurr = await searchNames(lastName);
-        console.log("PLAYERS INFO");
-        console.log(playersInfo);
         for(let i = 0; i < playersInfoCurr.length; i++) {
             if(playersInfoCurr[i].name.split(" ")[0] == firstName) {
                 selectedID = playersInfoCurr[i].id;
                 startSeason = playersInfoCurr[i].start;
             }
         }
-        console.log("SELECTED ID: ", selectedID);
-        console.log("SELECTED START SEASON: ", startSeason);
         setcurrPlayerStartSeason(startSeason);
         setCurrPlayer(selectedID);
         setShowSeason(true);
       };
       const handleSeasonChange = (event) => {
-        // Handle click on player row (e.g., show more details)
-        // console.log('Clicked on player:', player.name);
-        // console.log('With id:', player.id);
         setShowSeason(true);
         setSeason(event.target.value);
 
@@ -154,10 +119,8 @@ const Feature2Component = () => {
 
       try {
           const response = await axios.request(options);
-          console.log(response.data);
           const arr = response.data.response;
           setPreProcessedArr(arr);
-          console.log(arr);
           var points = 0;
           var rebounds = 0;
           var assists = 0;
@@ -236,18 +199,14 @@ const Feature2Component = () => {
             }));
 
             setPlayersInfo(playersInfoNew);
-            console.log("PLAYERSINFONEW");
-            console.log(playersInfo);
             return playersInfoNew
-            // setShowModal(true);
         } catch (error) {
             console.error(error);
-            // setShowModal(false);
         }
     };
     const renderSeasonOptions = () => {
         var startYear = currPlayerStartSeason;
-        const endYear = 2023; // Assuming you want to show until 2023
+        const endYear = 2023; 
         if (startYear < 2015) {
             startYear = 2015;
         }
@@ -267,28 +226,6 @@ const Feature2Component = () => {
                 className="flex-1 mr-4 p-2 border rounded"
             />
             <button onClick={handleSearch} type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
-            {/* {showModal && (
-                <div className="modal">
-                <div className="modal-content">
-                    <span className="close" onClick={() => {setShowModal(false); setShowSeason(false); setShowStats(false); setGraphDone(false);}}>&times;</span>
-                    <h2>Player List</h2>
-                    <table>
-                    <thead>
-                        <tr>
-                        <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {playersInfo.map(player => (
-                        <tr key={player.id} onClick={() => handlePlayerClick(player)}>
-                            <td>{player.name}</td>
-                        </tr>
-                        ))}
-                    </tbody>
-                    </table>
-                </div>
-                </div>
-            )} */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 m-4 ">
         {players.map((player, index) => (
           <div
@@ -310,11 +247,6 @@ const Feature2Component = () => {
                   className="w-full h-full object-contain mx-auto"
                 />
               ) : (
-                // <div className="absolute inset-0 bg-slate-900 opacity-75 flex items-center justify-center rounded-lg">
-                //   <span className="text-white text-sm">
-                //     Image Not Available
-                //   </span>
-                // </div>
                 <img
                   src="https://cdn.mos.cms.futurecdn.net/CPAhzgowLi2NtrP9HfVy9Y-1200-80.png"
                   alt="Image Not Available"
@@ -345,28 +277,6 @@ const Feature2Component = () => {
                 </div>
                 </div>
             )}
-            {/* {showStats && (
-                <div className="modal">
-                <div className="modal-content">
-                    <span className="close" onClick={() => {setShowStats(false); setGraphDone(false);}}>&times;</span>
-                    <h2>Average Stats</h2>
-                    <table>
-                    <thead>
-                        <tr>
-                        <th>Stats</th>
-                        </tr>
-                    </thead>
-                        <tbody>
-                        {stats.map(([key, value], index) => (
-                            <tr key={index}>
-                            <td>{key}: {value}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-            )} */}
             {graphDone && (
                 <div className="modal" style={{ textAlign: 'center' }}>
                     <h1 className="text-2xl font-bold mt-6">Player Stats Throughout the Season</h1>
