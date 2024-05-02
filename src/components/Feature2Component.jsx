@@ -369,10 +369,10 @@ const Feature2Component = () => {
             )} */}
             {graphDone && (
                 <div className="modal" style={{ textAlign: 'center' }}>
-                    <h1>Player Stats Throughout the Season</h1>
-                <div className="modal-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '600px' }}>
+                    <h1 className="text-2xl font-bold mt-6">Player Stats Throughout the Season</h1>
+                <div className="modal-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '1200px' }}>
                     <PlayerStatsGraph data={preProcessedArr} />
-                    </div>
+                  </div>
 
 
                 </div>
