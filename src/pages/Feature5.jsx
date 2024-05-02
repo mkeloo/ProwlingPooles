@@ -1,5 +1,5 @@
 import React from 'react';
-import Feature5Component from '../components/Feature5Component';
+import Feature5Component from '../components/Feature5Component'; //all the code for this feature here
 
 const Feature5 = () => {
   return (
